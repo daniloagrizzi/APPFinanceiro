@@ -1,11 +1,26 @@
-import Image from "next/image";
-import Login from "./components/auth/login/login";
+'use client';
 
-
-
+import { useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const { isAuthenticated, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading) {
+      if (isAuthenticated) {
+        router.push('/dashboard');
+      } else {
+        router.push('/login');
+      }
+    }
+  }, [loading, isAuthenticated, router]);
+
   return (
-    <Login></Login>
+    <div className="min-h-screen flex items-center justify-center">
+      <p>Redirecionando...</p>
+    </div>
   );
 }
