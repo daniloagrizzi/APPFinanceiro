@@ -70,11 +70,12 @@ export default function LoginPage() {
               Entrar
             </button>
             <button
-              type="button"
+           type="button"
+            onClick={() => router.push('/register')}
               className="w-full block text-[#221DAF] font-semibold rounded-full mt-4 py-3 border-2 border-[#221DAF] text-center hover:ring-[#221DAF] transition"
-            >
-              Cadastre-se
-            </button>
+               >
+                Cadastre-se
+                </button>
           </form>
         </div>
       </div>
