@@ -20,7 +20,7 @@ export default function ResetPasswordPage() {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      setMessage('As senhas não coincidem.');
+        setError('As senhas não coincidem.');
       return;
     }
 

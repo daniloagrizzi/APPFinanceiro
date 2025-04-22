@@ -4,7 +4,6 @@ interface ForgotPasswordData {
   email: string;
   frontendBaseUrl: string;
 }
-
 interface ResetPasswordData {
   email: string;
   token: string;
@@ -31,6 +30,11 @@ export const authService = {
 
   async register(data: { username: string; email: string; password: string }) {
     const response = await api.post('/Auth/register', data);
+    return response.data;
+  },
+
+  async getUserInfo() {
+    const response = await api.get('/Auth/buscarUsuario');
     return response.data;
   },
   

@@ -29,11 +29,10 @@ export default function LoginPage() {
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('userId', userId);
 
-      setMessage(res.message || 'Login feito com sucesso!');
       setError('');
       setFormData({ userName: '', password: '' });
 
-      setTimeout(() => router.push('/dashboard'), 500);
+      setTimeout(() => router.push('/dashboard'));
     } catch (err: any) {
       setError('Usuário ou senha inválidos');
       setMessage('');
