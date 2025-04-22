@@ -1,4 +1,5 @@
 'use client';
+import BigButton from '../components/buttons/BigButton';
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,7 +9,7 @@ export default function RegisterPage() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -61,9 +62,7 @@ export default function RegisterPage() {
                 required
               />
             </div>
-            <button type="submit" className="w-full mt-4 bg-[#221DAF] text-white font-semibold rounded-full py-3 hover:ring-2 transition">
-              Cadastrar
-            </button>
+            <BigButton text='Cadastrar'></BigButton>
           </form>
         </div>
       </div>
