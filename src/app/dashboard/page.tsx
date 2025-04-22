@@ -42,23 +42,24 @@ export default function Dashboard() {
   if (!isAuth) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#221DAF] to-white">
-      <div className="flex flex-col items-center pt-8 pb-6">
-        <div className="mb-4">
-          <h1 className="text-4xl font-bold text-white">Wo! Money</h1>
+    <div className="flex h-screen">
+      {/* Lado Esquerdo (Perfil do Usuário) */}
+      <div className="w-full lg:w-[40%] flex items-center justify-center bg-white px-8">
+        <div className="w-full max-w-md text-center">
+          <h1 className="text-h1 font-bold text-dark-purple mb-10">Wo! Money</h1>
+          <div className="w-44 h-44 mx-auto rounded-full overflow-hidden shadow-md mb-6">
+            <img src="/perfil.jpg" alt="Perfil" className="w-full h-full object-cover" />
+          </div>
+          <h2 className="text-xl font-semibold text-dark-purple mb-2">
+            Bem-vindo, <span className="font-extrabold">{userInfo.UserName}</span>!
+          </h2>
+          <p className="text-base font-medium text-gray-dark mb-1">
+            <span className="font-semibold">E-mail:</span> {userInfo.Email}
+          </p>
+          <p className="text-base font-medium text-gray-dark">
+            <span className="font-semibold">ID:</span> {userInfo.Id}
+          </p>
         </div>
-        <div className="w-45 h-45 rounded-full overflow-hidden shadow-md mr-4">
-          <img src="/perfil.jpg" alt="Perfil" className="w-full h-full object-cover" />
-        </div>
-        <h2 className="text-2xl font-bold text-white">
-          Bem-vindo, <span className="font-extrabold">{userInfo.UserName}</span>!
-        </h2>
-        <h2 className="text-2xl font-bold text-white">
-          Seu E-mail: <span className="font-extrabold">{userInfo.Email}</span>
-        </h2>
-        <h2 className="text-2xl font-bold text-white">
-          Seu Id: <span className="font-extrabold">{userInfo.Id}</span>
-        </h2>
       </div>
     </div>
   );
