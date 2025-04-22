@@ -33,7 +33,7 @@ export default function LoginPage() {
       setError('');
       setFormData({ userName: '', password: '' });
 
-      setTimeout(() => router.push('/dashboard'), 2000);
+      setTimeout(() => router.push('/dashboard'), 500);
     } catch (err: any) {
       setError('Usuário ou senha inválidos');
       setMessage('');
@@ -76,7 +76,7 @@ export default function LoginPage() {
                 placeholder="Digite sua senha"
                 required
               />
-              <a href="#" className="block text-small font-semibold text-dark-purple mt-2">Esqueceu a senha?</a>
+              <a href ='#' onClick={() => router.push('/forgotPassword')} className="block text-small font-semibold text-dark-purple mt-2">Esqueceu a senha?</a>
             </div>
 
             <BigButton text='Entrar' className='' variant='default' type='submit' />

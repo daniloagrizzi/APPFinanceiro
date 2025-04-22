@@ -31,7 +31,7 @@ export default function RegisterPage() {
       setMessage(res.message || 'Usuário registrado com sucesso!')
       setFormData({ username: '', email: '', password: '' })
 
-      setTimeout(() => router.push('/login'), 2000)
+      setTimeout(() => router.push('/login'), 1000)
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Erro ao registrar.')
     }

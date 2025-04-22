@@ -1,5 +1,15 @@
 import api from './api';
 
+interface ForgotPasswordData {
+  email: string;
+  frontendBaseUrl: string;
+}
+
+interface ResetPasswordData {
+  email: string;
+  token: string;
+  newPassword: string;
+}
 interface LoginData {
   userName: string;
   password: string;
@@ -29,6 +39,16 @@ export const authService = {
       accessToken: token,
       refreshToken: refreshToken
     });
+    return response.data;
+  },
+
+  async forgotPassword(data: ForgotPasswordData) {
+    const response = await api.post('/Auth/forgot-password', data);
+    return response.data;
+  },
+
+  async resetPassword(data: ResetPasswordData) {
+    const response = await api.post('/Auth/reset-password', data);
     return response.data;
   },
 
