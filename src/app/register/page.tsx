@@ -85,6 +85,7 @@ export default function RegisterPage() {
             </div>
 
             <BigButton text='Cadastrar' />
+            <BigButton text='Já possui conta? Entre aqui' className='' variant='secundary' onClick={() => router.push('/login')} />
 
             {message && <p className="text-green-600 mt-4">{message}</p>}
             {error && <p className="text-red-600 mt-4">{error}</p>}
