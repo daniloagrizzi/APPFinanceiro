@@ -5,18 +5,12 @@ interface LoginData {
   password: string;
 }
 
-interface RegisterData {
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword?: string;
-}
-
 interface AuthResponse {
   token: string;
   refreshToken: string;
   expiration: string;
   userId: string;
+  message: string;
 }
 
 export const authService = {
@@ -25,11 +19,11 @@ export const authService = {
     return response.data;
   },
 
-  async register(data: RegisterData): Promise<{ message: string }> {
+  async register(data: { username: string; email: string; password: string }) {
     const response = await api.post('/Auth/register', data);
     return response.data;
   },
-
+  
   async refreshToken(token: string, refreshToken: string) {
     const response = await api.post('/Auth/refresh-token', {
       accessToken: token,

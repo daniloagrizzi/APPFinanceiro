@@ -1,37 +1,42 @@
 'use client';
 import BigButton from '../components/buttons/BigButton';
-
 import { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { authService } from '@/services/authService';
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [formData, setFormData] = useState({
+    userName: '',
+    password: ''
+  });
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
   const router = useRouter();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post("https://localhost:7202/api/auth/login", {
-        userName: username,
-        password: password,
-      }, {
-        headers: {
-          "Content-Type": "application/json"
-        },
-        withCredentials: false
-      });
+      const res = await authService.login(formData);
 
-      const { token, refreshToken, userId } = response.data;
+      const { token, refreshToken, userId } = res;
 
       localStorage.setItem('accessToken', token);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('userId', userId);
 
-      router.push('/dashboard');
-    } catch (error) {
-      alert('Usuário ou senha inválidos');
+      setMessage(res.message || 'Login feito com sucesso!');
+      setError('');
+      setFormData({ userName: '', password: '' });
+
+      setTimeout(() => router.push('/dashboard'), 2000);
+    } catch (err: any) {
+      setError('Usuário ou senha inválidos');
+      setMessage('');
     }
   };
 
@@ -42,33 +47,40 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           <h1 className="text-h1 font-bold text-dark-purple mb-10">Wo! Money</h1>
           <form onSubmit={handleLogin}>
+            {message && <p className="text-green-600 mb-2">{message}</p>}
+            {error && <p className="text-red-600 mb-2">{error}</p>}
+
             <div className="mb-6">
-              <label htmlFor="username" className="block mb-2 font-semibold text-dark-purple">Login</label>
+              <label htmlFor="userName" className="block mb-2 font-semibold text-dark-purple">Login</label>
               <input
                 type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="userName"
+                name="userName"
+                value={formData.userName}
+                onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
                 placeholder="e-mail ou telefone"
                 required
               />
             </div>
+
             <div className="mb-3">
               <label htmlFor="password" className="block mb-2 font-semibold text-dark-purple">Senha</label>
               <input
                 type="password"
                 id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
                 placeholder="Digite sua senha"
                 required
               />
               <a href="#" className="block text-small font-semibold text-dark-purple mt-2">Esqueceu a senha?</a>
             </div>
-            <BigButton text='Entrar' className='' variant='default'></BigButton>
-            <BigButton text='Cadastre-se' className='' variant='secundary' onClick={() => router.push('/register')}></BigButton>
+
+            <BigButton text='Entrar' className='' variant='default' type='submit' />
+            <BigButton text='Cadastre-se' className='' variant='secundary' onClick={() => router.push('/register')} />
           </form>
         </div>
       </div>

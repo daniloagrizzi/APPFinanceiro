@@ -1,23 +1,41 @@
-'use client';
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { authService } from '@/services/authService'
 import BigButton from '../components/buttons/BigButton';
 
-import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-
 export default function RegisterPage() {
-  const { register } = useAuth();
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const router = useRouter()
+
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: ''
+  })
+
+  const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
+    setMessage('')
+    setError('')
+
     try {
-      await register(username, email, password);
-    } catch (error) {
-      alert('Erro ao registrar. Verifique os dados e tente novamente.');
+      const res = await authService.register(formData)
+      setMessage(res.message || 'Usuário registrado com sucesso!')
+      setFormData({ username: '', email: '', password: '' })
+
+      setTimeout(() => router.push('/login'), 2000)
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Erro ao registrar.')
     }
-  };
+  }
 
   return (
     <div className="flex h-screen">
@@ -31,8 +49,9 @@ export default function RegisterPage() {
               <input
                 type="text"
                 id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
                 placeholder="Digite seu nome de usuário"
                 required
@@ -43,8 +62,9 @@ export default function RegisterPage() {
               <input
                 type="email"
                 id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
                 placeholder="Digite seu e-mail"
                 required
@@ -55,14 +75,19 @@ export default function RegisterPage() {
               <input
                 type="password"
                 id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
                 placeholder="Crie uma senha"
                 required
               />
             </div>
-            <BigButton text='Cadastrar'></BigButton>
+
+            <BigButton text='Cadastrar' />
+
+            {message && <p className="text-green-600 mt-4">{message}</p>}
+            {error && <p className="text-red-600 mt-4">{error}</p>}
           </form>
         </div>
       </div>
@@ -77,5 +102,5 @@ export default function RegisterPage() {
         </p>
       </div>
     </div>
-  );
+  )
 }
