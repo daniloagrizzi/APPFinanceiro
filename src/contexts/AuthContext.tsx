@@ -23,7 +23,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // Verificar se usuário está autenticado ao carregar a página
     const userId = localStorage.getItem('userId');
     const token = localStorage.getItem('token');
     

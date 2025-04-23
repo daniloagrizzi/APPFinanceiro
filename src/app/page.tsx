@@ -19,8 +19,9 @@ export default function Home() {
   }, [loading, isAuthenticated, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <p>Redirecionando...</p>
+    <div className="min-h-screen flex flex-col items-center justify-center">
+      <img src="/wo-axolot.png" alt="Logo Wo! Money" className="w-40 mb-6 invert" />
+      <p className="text-lg text-dark-purple font-semibold">Carregando...</p>
     </div>
   );
 }
