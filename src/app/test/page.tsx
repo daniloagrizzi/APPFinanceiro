@@ -1,18 +1,20 @@
 import ActionButton from "../components/buttons/ActionButton"
+import SidePannel from "../components/SidePannel/SidePannel"
 
 
 
-export default function() {
+export default function () {
 
 
-return(
+    return (
 
-<>
-<ActionButton></ActionButton>
-</>
+        <>
+
+            <SidePannel></SidePannel >
+        </>
 
 
-)
+    )
 
 
 }
