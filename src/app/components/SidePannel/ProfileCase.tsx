@@ -1,4 +1,3 @@
-import { profile } from "console";
 import React from "react";
 
 interface ProfileCase {
@@ -11,8 +10,6 @@ interface ProfileCase {
 
 
 const ProfileCase: React.FC<ProfileCase> = ({ profilePicture = '/profile-pictst.jpg', userName = 'username' }) => {
-
-
 
     return (<>
         <figure className="flex-col text-center">

@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
+
 export default function Home() {
   const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
