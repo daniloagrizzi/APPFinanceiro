@@ -7,42 +7,42 @@ import SidePannel from "../components/SidePannel/SidePannel";
 
 
 export default function Dashboard() {
-  /*  const [isAuth, setIsAuth] = useState(false);
-   const [userInfo, setUserInfo] = useState({
-     Id: '',
-     Email: '',
-     UserName: '',
-   });
-   const router = useRouter();
- 
-   useEffect(() => {
-     const token = localStorage.getItem("accessToken");
- 
-     if (!token) {
-       router.push("/login");
-       return;
-     }
- 
-     const fetchUserInfo = async () => {
-       try {
-         const data = await authService.getUserInfo();
-         setUserInfo({
-           UserName: data.UserName || data.userName,
-           Email: data.Email || data.email,
-           Id: data.Id || data.id
-         });
-         setIsAuth(true);
-       } catch (error) {
-         console.error("Erro ao buscar informações do usuário:", error);
-         setIsAuth(false);
-         router.push("/login");
-       }
-     };
- 
-     fetchUserInfo();
-   }, []);
- 
-   if (!isAuth) return null; */
+  const [isAuth, setIsAuth] = useState(false);
+  const [userInfo, setUserInfo] = useState({
+    Id: '',
+    Email: '',
+    UserName: '',
+  });
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    const fetchUserInfo = async () => {
+      try {
+        const data = await authService.getUserInfo();
+        setUserInfo({
+          UserName: data.UserName || data.userName,
+          Email: data.Email || data.email,
+          Id: data.Id || data.id
+        });
+        setIsAuth(true);
+      } catch (error) {
+        console.error("Erro ao buscar informações do usuário:", error);
+        setIsAuth(false);
+        router.push("/login");
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
+
+  if (!isAuth) return null;
 
   return (
 
@@ -55,13 +55,13 @@ export default function Dashboard() {
             <img src="/perfil.jpg" alt="Perfil" className="w-full h-full object-cover" />
           </div>
           <h2 className="text-xl font-semibold text-dark-purple mb-2">
-            Bem-vindo, <span className="font-extrabold">{/* userInfo.UserName */}</span>!
+            Bem-vindo, <span className="font-extrabold">{userInfo.UserName}</span>!
           </h2>
           <p className="text-base font-medium text-gray-dark mb-1">
-            <span className="font-semibold">E-mail:</span> {/* userInfo.Email */}
+            <span className="font-semibold">E-mail:</span> {userInfo.Email}
           </p>
           <p className="text-base font-medium text-gray-dark">
-            <span className="font-semibold">ID:</span> {/* userInfo.Id */}
+            <span className="font-semibold">ID:</span> {userInfo.Id}
           </p>
         </div>
       </div>
