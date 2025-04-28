@@ -2,12 +2,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
 import { authService } from "@/services/authService";
+import SidePannel from "../components/SidePannel/SidePannel";
+
+
 
 export default function Dashboard() {
   const [isAuth, setIsAuth] = useState(false);
   const [userInfo, setUserInfo] = useState({
-     Id: '',
-     Email: '',
+    Id: '',
+    Email: '',
     UserName: '',
   });
   const router = useRouter();
@@ -22,7 +25,7 @@ export default function Dashboard() {
 
     const fetchUserInfo = async () => {
       try {
-        const data = await authService.getUserInfo(); 
+        const data = await authService.getUserInfo();
         setUserInfo({
           UserName: data.UserName || data.userName,
           Email: data.Email || data.email,
@@ -32,7 +35,7 @@ export default function Dashboard() {
       } catch (error) {
         console.error("Erro ao buscar informações do usuário:", error);
         setIsAuth(false);
-        router.push("/login"); 
+        router.push("/login");
       }
     };
 
@@ -42,9 +45,10 @@ export default function Dashboard() {
   if (!isAuth) return null;
 
   return (
+
     <div className="flex h-screen">
-      {/* Lado Esquerdo (Perfil do Usuário) */}
-      <div className="w-full lg:w-[40%] flex items-center justify-center bg-white px-8">
+      <SidePannel></SidePannel>    {/* Lado Esquerdo (Perfil do Usuário) */}
+      <div className="w-full lg:w-screen flex items-center justify-center bg-white px-8">
         <div className="w-full max-w-md text-center">
           <h1 className="text-h1 font-bold text-dark-purple mb-10">Wo! Money</h1>
           <div className="w-44 h-44 mx-auto rounded-full overflow-hidden shadow-md mb-6">
