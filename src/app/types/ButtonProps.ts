@@ -7,4 +7,7 @@ export interface ButtonProps {
   type?: "submit" | "button" | "reset";
   className?: string;
   icon?: string;
+  alt?: string;
+  IconStyle?: string;
+  Sizes?: string;
 }

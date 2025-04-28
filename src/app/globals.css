@@ -28,7 +28,8 @@
   --color-light-gray: #dddddd;
   --color-lighter-gray: #f2f2f2;
   --color-dark-gray: #636363;
-  --alternative-red: #df585a;
+  --color-alternative-red: #df585a;
+  --color-card-white: #f9f9fa;
 
   /* Text sizing */
   /* The default fontsize for the aplication is 16px, 1.00rem = 16px (Always set the font size in rem)*/

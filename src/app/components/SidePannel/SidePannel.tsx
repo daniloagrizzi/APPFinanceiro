@@ -1,8 +1,9 @@
+"use client"
 import React from "react";
 import ActionButton from "../buttons/ActionButton";
 import ProfileCase from "./ProfileCase";
 import { useRouter } from "next/navigation";
-import { on } from "events";
+
 
 interface SidePannelProps {
     profilepicture?: string;
@@ -15,6 +16,8 @@ const SidePannel: React.FC<SidePannelProps> = ({
     profilepicture = "/Icons/SidePannel/profile-pictst.jpg",
     username = "username",
 }) => {
+
+
     const style = "bg-dark-purple flex flex-col items-center w-[250px] h-screen gap-4";
     const router = useRouter();
     return (

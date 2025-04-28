@@ -8,7 +8,7 @@ const ActionButton: React.FC<ButtonProps> = ({ type = 'button', className, text 
     //Icon Styles
     const IconStyle = 'w-[24px]  m-3'
 
-    const ButtonSizes = 'h-[4rem] w-[100%] rounded-[0.625rem]'
+    const ButtonSizes = 'h-[4rem] w-[100%]'
 
     const ButtonStyle = `${className} flex items-center justify-center bg-dark-purple hover:bg-light-purple ${ButtonSizes} `
 
