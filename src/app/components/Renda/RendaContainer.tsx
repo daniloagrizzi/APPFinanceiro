@@ -6,15 +6,20 @@ import { RendaDto } from '@/Interfaces/Renda/RendaDto';
 interface RendasContainerProps {
   onAdd?: () => void;
   onEdit?: (renda: RendaDto) => void;
+  onRendaAtualizadaExternamente?: (callback: (renda: RendaDto) => void) => void;
 }
 
-const RendasContainer = ({ onAdd, onEdit }: RendasContainerProps) => {
+const RendasContainer = ({ onAdd, onEdit, onRendaAtualizadaExternamente }: RendasContainerProps) => {
   const [rendas, setRendas] = useState<RendaDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchRendas();
+
+    if (onRendaAtualizadaExternamente) {
+      onRendaAtualizadaExternamente(handleRendaEditada);
+    }
   }, []);
 
   const fetchRendas = async () => {
@@ -34,18 +39,23 @@ const RendasContainer = ({ onAdd, onEdit }: RendasContainerProps) => {
 
   const handleEdit = (renda: RendaDto) => {
     if (onEdit) {
-      onEdit(renda);
+      onEdit(renda); 
     }
+  };
+
+  const handleRendaEditada = (rendaAtualizada: RendaDto) => {
+    setRendas(prev =>
+      prev.map(r => (r.id === rendaAtualizada.id ? rendaAtualizada : r))
+    );
   };
 
   const handleDelete = async (id: number) => {
     try {
       await rendaService.deletarRenda(id);
-      // Atualiza a lista após exclusão bem-sucedida
       setRendas(rendas.filter(renda => renda.id !== id));
     } catch (err) {
       console.error('Erro ao excluir renda:', err);
-      throw err; // Propaga o erro para tratamento no componente RendaCard
+      throw err; 
     }
   };
 

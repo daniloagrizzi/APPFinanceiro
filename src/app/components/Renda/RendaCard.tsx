@@ -9,49 +9,46 @@ interface RendaCardProps {
 
 const RendaCard = ({ renda, onEdit, onDelete }: RendaCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const handleEdit = () => {
     if (onEdit) {
-      onEdit(renda);
+      onEdit(renda); 
     }
   };
-  
+
   const handleDelete = async () => {
     if (onDelete) {
       setIsLoading(true);
       try {
-        await onDelete(renda.id);
+        await onDelete(renda.id); 
       } catch (error) {
-        console.error("Erro ao excluir renda:", error);
+        console.error('Erro ao excluir renda:', error);
       } finally {
         setIsLoading(false);
       }
     }
   };
-  
-  // Format date to display in a localized format
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return new Intl.DateTimeFormat('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      }).format(date);
-    } catch (e) {
-      console.error("Error formatting date:", e);
-      return dateString;
-    }
-  };
-  
-  // Format currency for display
+
+const formatDate = (dateString: string) => {
+  try {
+
+    const [datePart] = dateString.split('T');
+    const [year, month, day] = datePart.split('-');
+    return `${day}/${month}/${year}`;
+  } catch (e) {
+    console.error('Erro ao formatar data:', e);
+    return dateString;
+  }
+};
+
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
     }).format(value);
   };
-  
+
   return (
     <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
       <div className="flex items-center">
@@ -67,7 +64,7 @@ const RendaCard = ({ renda, onEdit, onDelete }: RendaCardProps) => {
         </div>
       </div>
       <div className="flex space-x-2">
-        <button 
+        <button
           onClick={handleEdit}
           disabled={isLoading}
           className="p-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors"
@@ -77,7 +74,7 @@ const RendaCard = ({ renda, onEdit, onDelete }: RendaCardProps) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
           </svg>
         </button>
-        <button 
+        <button
           onClick={handleDelete}
           disabled={isLoading}
           className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"

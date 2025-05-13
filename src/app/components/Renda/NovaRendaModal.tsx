@@ -16,12 +16,13 @@ export default function NovaRendaModal({ isOpen, onClose, onRendaAdicionada }: N
   const handleSubmit = async () => {
     try {
       const userInfo = await authService.getUserInfo();
-
+const hoje = new Date();
+const dataFormatada = hoje.toISOString().split('T')[0]; 
       const novaRenda: RendaDto = {
         id: 0,
         descricao,
         valor,
-        data: new Date().toISOString(),
+        data: dataFormatada,
         usuarioId: userInfo.id || userInfo.Id, 
       };
 
@@ -38,6 +39,7 @@ export default function NovaRendaModal({ isOpen, onClose, onRendaAdicionada }: N
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50">
+
       <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
         <h2 className="text-xl font-bold mb-4">Adicionar Renda</h2>
 
