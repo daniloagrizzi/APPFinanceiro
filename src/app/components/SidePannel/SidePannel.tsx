@@ -1,32 +1,49 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ActionButton from "../buttons/ActionButton";
 import ProfileCase from "./ProfileCase";
 import { useRouter } from "next/navigation";
-import { on } from "events";
+import { authService } from "@/services/authService"; 
 
 interface SidePannelProps {
-    profilepicture?: string;
-    username?: string;
+    profilePicture?: string;
+    userName?: string;
 }
 
 const SidePannel: React.FC<SidePannelProps> = ({
-    profilepicture = "/Icons/SidePannel/profile-pictst.jpg",
-    username = "username",
+    profilePicture = "/perfil.jpg",
+    userName = "username",
 }) => {
-    const style = "bg-dark-purple flex flex-col items-center w-[250px] h-screen gap-4 text-white";
+    const [realUserName, setRealUserName] = useState<string>(userName);
     const router = useRouter();
+
+    useEffect(() => {
+        const fetchUserName = async () => {
+            try {
+                const userInfo = await authService.getUserInfo();
+                setRealUserName(userInfo.UserName || userInfo.userName); 
+            } catch (error) {
+                console.error("Erro ao buscar nome do usuário:", error);
+                setRealUserName("Nome não encontrado");
+            }
+        };
+
+        fetchUserName();
+    }, []); 
+
+    const style = "bg-dark-purple flex flex-col items-center w-[250px] h-screen gap-4 text-white";
+
     return (
         <>
             <div className={style}>
                 {/* Side Pannel */}
                 <div className="mt-5">
-                    <ProfileCase profilePicture={profilepicture} userName={username} />
+                    <ProfileCase profilePicture={profilePicture} userName={realUserName} />
                 </div> {/* Profile */}
 
                 <div className="w-[90%] h-[60%] border-t-1 text-white">
                     {/* Primary Buttons */}
                     <ActionButton onClick={() => router.push('/dashboard')} icon="Icons/SidePannel/Dashboard.png" className="mt-5 text-white" text="Dashboard" />
-                    <ActionButton onClick={() => router.push('#')} icon="Icons/SidePannel/User.png" text="Perfil" className="text-white" />
+                    <ActionButton onClick={() => router.push('/financialProfile')} icon="Icons/SidePannel/User.png" text="Perfil" className="text-white" />
                     <ActionButton onClick={() => router.push('#')} icon="Icons/SidePannel/trophy-line.png" text="Gastos" className="text-white" />
                     <ActionButton onClick={() => router.push('#')} icon="Icons/SidePannel/flashlight-line.png" text="Rendas" className="text-white" />
                     <ActionButton onClick={() => router.push('#')} className="mb-5 text-white" text="Metas" />
