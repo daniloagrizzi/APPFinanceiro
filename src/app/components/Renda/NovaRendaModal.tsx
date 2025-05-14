@@ -7,6 +7,8 @@ interface NovaRendaModalProps {
   isOpen: boolean;
   onClose: () => void;
   onRendaAdicionada: (novaRenda: RendaDto) => void;
+   onSaved: () => void; 
+   editingRenda: RendaDto | null;
 }
 
 export default function NovaRendaModal({ isOpen, onClose, onRendaAdicionada }: NovaRendaModalProps) {
