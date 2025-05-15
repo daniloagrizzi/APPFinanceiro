@@ -4,7 +4,7 @@ import { DespesaDto } from '@/Interfaces/Despesa/DespesaDto';
 interface DespesaCardProps {
   despesa: DespesaDto;
   onEdit?: (despesa: DespesaDto) => void;
-  onDelete?: (id: number) => void;
+  onDelete?: (id: number) => Promise<void> | void;
   tiposDespesa?: { id: number; nome: string }[];
 }
 
@@ -18,15 +18,15 @@ const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCa
   };
 
   const handleDelete = async () => {
-    if (onDelete) {
-      setIsLoading(true);
-      try {
-        await onDelete(despesa.id);
-      } catch (error) {
-        console.error('Erro ao excluir despesa:', error);
-      } finally {
-        setIsLoading(false);
-      }
+    if (!onDelete) return;
+
+    setIsLoading(true);
+    try {
+      await onDelete(despesa.id);
+    } catch (error) {
+      console.error('Erro ao excluir despesa:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -35,8 +35,7 @@ const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCa
       const [datePart] = dateString.split('T');
       const [year, month, day] = datePart.split('-');
       return `${day}/${month}/${year}`;
-    } catch (e) {
-      console.error('Erro ao formatar data:', e);
+    } catch {
       return dateString;
     }
   };
@@ -77,7 +76,8 @@ const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCa
           onClick={handleEdit}
           disabled={isLoading}
           className="p-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors"
-          aria-label="Editar"
+          aria-label="Editar despesa"
+          title="Editar despesa"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -87,7 +87,8 @@ const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCa
           onClick={handleDelete}
           disabled={isLoading}
           className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-          aria-label="Excluir"
+          aria-label="Excluir despesa"
+          title="Excluir despesa"
         >
           {isLoading ? (
             <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
