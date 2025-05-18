@@ -20,14 +20,9 @@ const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCa
   const handleDelete = async () => {
     if (!onDelete) return;
 
-    // Adicionando confirmação antes de excluir
-    const confirma = window.confirm(`Tem certeza que deseja excluir a despesa "${despesa.descricao}" no valor de ${formatCurrency(despesa.valor)}?`);
-    
-    if (!confirma) return; // Se o usuário cancelar, não faz nada
-
     setIsLoading(true);
     try {
-      await onDelete(despesa.id);
+      await onDelete(despesa.id); 
     } catch (error) {
       console.error('Erro ao excluir despesa:', error);
     } finally {

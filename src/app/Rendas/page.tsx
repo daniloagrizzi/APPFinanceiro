@@ -9,6 +9,7 @@ import SidePannel from "../components/SidePannel/SidePannel";
 import RendaCard from "../components/Renda/RendaCard";
 import { RendaDto } from "@/Interfaces/Renda/RendaDto";
 import NovaRendaModal from "../components/Renda/NovaRendaModal";
+import ConfirmModal from "../components/UI/ConfirmModal";
 
 export default function Rendas() {
   const [isAuth, setIsAuth] = useState(false);
@@ -17,6 +18,8 @@ export default function Rendas() {
   const [error, setError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [rendaToEdit, setRendaToEdit] = useState<RendaDto | null>(null);
+  const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false);
+  const [rendaToDelete, setRendaToDelete] = useState<RendaDto | null>(null);
 
   const router = useRouter();
 
@@ -63,12 +66,22 @@ export default function Rendas() {
     setShowAddModal(true);
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await rendaService.deletarRenda(id);
-      setRendas(rendas.filter(r => r.id !== id));
-    } catch (error) {
-      console.error("Erro ao excluir renda:", error);
+  const solicitarConfirmacaoExclusao = (renda: RendaDto) => {
+    setRendaToDelete(renda);
+    setConfirmDeleteModalOpen(true);
+  };
+
+  const confirmarExclusao = async () => {
+    if (rendaToDelete) {
+      try {
+        await rendaService.deletarRenda(rendaToDelete.id);
+        setRendas(rendas.filter(r => r.id !== rendaToDelete.id));
+      } catch (error) {
+        console.error("Erro ao excluir renda:", error);
+      } finally {
+        setConfirmDeleteModalOpen(false);
+        setRendaToDelete(null);
+      }
     }
   };
 
@@ -126,7 +139,7 @@ export default function Rendas() {
                   key={renda.id}
                   renda={renda}
                   onEdit={handleEdit}
-                  onDelete={handleDelete}
+                  onDelete={() => solicitarConfirmacaoExclusao(renda)}
                 />
               ))}
             </div>
@@ -137,6 +150,13 @@ export default function Rendas() {
             onClose={handleCloseModal}
             onRendaAdicionada={handleRendaAdicionada}
             editingRenda={rendaToEdit}
+          />
+
+          <ConfirmModal
+            isOpen={confirmDeleteModalOpen}
+            message={`Tem certeza que deseja excluir a renda "${rendaToDelete?.descricao}"?`}
+            onConfirm={confirmarExclusao}
+            onCancel={() => setConfirmDeleteModalOpen(false)}
           />
         </div>
       </div>

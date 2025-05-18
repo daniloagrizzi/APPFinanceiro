@@ -8,6 +8,7 @@ import { despesaService } from "@/services/despesaService";
 import { tipoDespesaService } from "@/services/tipoDespesaService"; 
 import SidePannel from "../components/SidePannel/SidePannel";
 import DespesaCard from "../components/Despesa/DespesaCard";
+import ConfirmModal from "../components/UI/ConfirmModal";
 import { DespesaDto } from "@/Interfaces/Despesa/DespesaDto";
 
 export default function Despesas() {
@@ -18,6 +19,8 @@ export default function Despesas() {
   const [error, setError] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [despesaToEdit, setDespesaToEdit] = useState<DespesaDto | null>(null);
+  const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false);
+  const [despesaToDelete, setDespesaToDelete] = useState<DespesaDto | null>(null);
 
   const router = useRouter();
 
@@ -62,22 +65,33 @@ export default function Despesas() {
     }
   };
 
+  // Ações
   const handleEdit = (despesa: DespesaDto) => {
     setDespesaToEdit(despesa);
     setShowAddModal(true);
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await despesaService.deletarDespesa(id);
-      setDespesas(despesas.filter(d => d.id !== id));
-    } catch (error) {
-      console.error("Erro ao excluir despesa:", error);
+  const solicitarConfirmacaoExclusao = (despesa: DespesaDto) => {
+    setDespesaToDelete(despesa);
+    setConfirmDeleteModalOpen(true);
+  };
+
+  const confirmarExclusao = async () => {
+    if (despesaToDelete) {
+      try {
+        await despesaService.deletarDespesa(despesaToDelete.id);
+        setDespesas(despesas.filter(d => d.id !== despesaToDelete.id));
+      } catch (error) {
+        console.error("Erro ao excluir despesa:", error);
+      } finally {
+        setConfirmDeleteModalOpen(false);
+        setDespesaToDelete(null);
+      }
     }
   };
 
   const handleAddNew = () => {
-    setDespesaToEdit(null); 
+    setDespesaToEdit(null);
     setShowAddModal(true);
   };
 
@@ -86,25 +100,21 @@ export default function Despesas() {
     setDespesaToEdit(null);
   };
 
-  const handleSaveDespesa = async (despesa: DespesaDto) => {
-    try {
-      if (despesa.id) {
-        const despesaAtualizada = await despesaService.atualizarDespesa(despesa);
-        setDespesas(despesas.map(d => d.id === despesa.id ? despesaAtualizada : d));
-      } else {
-        const novaDespesa = await despesaService.adicionarDespesa(despesa);
-        setDespesas([...despesas, novaDespesa]);
-      }
-      handleCloseModal();
-    } catch (error) {
-      console.error("Erro ao salvar despesa:", error);
+  const handleDespesaAdicionada = (despesa: DespesaDto) => {
+    const index = despesas.findIndex(d => d.id === despesa.id);
+    if (index >= 0) {
+      const novasDespesas = [...despesas];
+      novasDespesas[index] = despesa;
+      setDespesas(novasDespesas);
+    } else {
+      setDespesas([...despesas, despesa]);
     }
   };
 
   if (!isAuth) return null;
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen relative">
       <SidePannel />
 
       <div className="w-full p-6 overflow-auto bg-white">
@@ -134,7 +144,7 @@ export default function Despesas() {
                   key={despesa.id}
                   despesa={despesa}
                   onEdit={handleEdit}
-                  onDelete={handleDelete}
+                  onDelete={() => solicitarConfirmacaoExclusao(despesa)}
                   tiposDespesa={tiposDespesa}
                 />
               ))}
@@ -142,6 +152,12 @@ export default function Despesas() {
           )}
         </div>
       </div>
+      <ConfirmModal
+        isOpen={confirmDeleteModalOpen}
+        message={`Tem certeza que deseja excluir a despesa "${despesaToDelete?.descricao}"?`}
+        onConfirm={confirmarExclusao}
+        onCancel={() => setConfirmDeleteModalOpen(false)}
+      />
     </div>
   );
 }

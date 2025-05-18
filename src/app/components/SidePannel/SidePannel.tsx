@@ -30,6 +30,11 @@ const SidePannel: React.FC<SidePannelProps> = ({
         fetchUserName();
     }, []); 
 
+    const handleLogout = () => {
+        authService.logout();
+        router.push('/login');
+    };
+
     const style = "bg-dark-purple flex flex-col items-center w-[250px] h-screen gap-4 text-white";
 
     return (
@@ -52,12 +57,13 @@ const SidePannel: React.FC<SidePannelProps> = ({
                 <div className="w-[90%] border-t-1 mb-5 text-white">
                     {/* Other Buttons */}
                     <ActionButton onClick={() => router.push('#')} text="Configurações" className="mt-5 text-white" />
-                    <ActionButton onClick={() => router.push('#')} text="Sair" className="text-white" />
+                    <ActionButton onClick={handleLogout} text="Sair" className="text-white" />
                     <ActionButton onClick={() => router.push('#')} text="Ajuda" className="text-white" />
                 </div>
             </div>
         </>
     );
 };
+
 
 export default SidePannel;
