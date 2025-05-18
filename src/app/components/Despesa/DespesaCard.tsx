@@ -5,24 +5,21 @@ interface DespesaCardProps {
   despesa: DespesaDto;
   onEdit?: (despesa: DespesaDto) => void;
   onDelete?: (id: number) => Promise<void> | void;
-  tiposDespesa?: { id: number; nome: string }[];
+  tiposDespesa?: { id: number; descricao: string }[];
 }
 
 const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleEdit = () => {
-    if (onEdit) {
-      onEdit(despesa);
-    }
+    if (onEdit) onEdit(despesa);
   };
 
   const handleDelete = async () => {
     if (!onDelete) return;
-
     setIsLoading(true);
     try {
-      await onDelete(despesa.id); 
+      await onDelete(despesa.id);
     } catch (error) {
       console.error('Erro ao excluir despesa:', error);
     } finally {
@@ -39,7 +36,7 @@ const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCa
       return dateString;
     }
   };
-  
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -49,29 +46,29 @@ const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCa
 
   const getTipoDespesaNome = () => {
     const tipo = tiposDespesa.find(t => t.id === despesa.tipoDespesaId);
-    return tipo ? tipo.nome : 'Geral';
+    return tipo ? tipo.descricao : 'Geral';
   };
 
   return (
-    <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
-      <div className="flex items-center">
-        <div className="flex items-center justify-center w-10 h-10 bg-red-50 text-red-500 rounded-full mr-3">
-          <span className="text-lg font-semibold">-</span>
+    <div className="flex justify-between items-start py-4 px-3 bg-white shadow-sm rounded-xl border border-gray-100">
+      <div className="flex items-start space-x-3">
+        <div className="w-10 h-10 flex items-center justify-center bg-red-100 text-red-600 rounded-full font-bold text-lg">
+          -
         </div>
         <div>
-          <p className="font-medium text-gray-800">{formatCurrency(despesa.valor)}</p>
-          <div className="flex space-x-3">
-            <p className="text-sm text-gray-500">{despesa.descricao}</p>
-            <p className="text-xs text-gray-400">{formatDate(despesa.data)}</p>
+          <p className="text-base font-semibold text-gray-800">{formatCurrency(despesa.valor)}</p>
+          <p className="text-sm text-gray-600">{despesa.descricao}</p>
+          <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+            <span>{formatDate(despesa.data)}</span>
             {tiposDespesa.length > 0 && (
-              <p className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+              <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                 {getTipoDespesaNome()}
-              </p>
+              </span>
             )}
           </div>
         </div>
       </div>
-      <div className="flex space-x-2">
+      <div className="flex space-x-2 mt-1">
         <button
           onClick={handleEdit}
           disabled={isLoading}

@@ -51,7 +51,7 @@ export default function NovaRendaModal({
         rendaSalva = await rendaService.adicionarRenda(rendaParaSalvar);
       }
 
-      onRendaAdicionada(rendaSalva); // ✅ nome corrigido
+      onRendaAdicionada(rendaSalva);
       onClose();
     } catch (error) {
       console.error("Erro ao salvar renda:", error);
@@ -72,7 +72,7 @@ export default function NovaRendaModal({
           <label className="block text-sm font-medium text-gray-700">Descrição</label>
           <input
             type="text"
-            className="mt-1 w-full border border-gray-300 rounded-md p-2"
+            className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
           />
@@ -83,7 +83,7 @@ export default function NovaRendaModal({
           <input
             type="number"
             step="0.01"
-            className="mt-1 w-full border border-gray-300 rounded-md p-2"
+            className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
             value={valor}
             onChange={(e) => setValor(parseFloat(e.target.value) || 0)}
           />
