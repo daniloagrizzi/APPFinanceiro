@@ -1,85 +1,65 @@
-'use client';
-
 import { useState, useEffect } from 'react';
 import { DespesaDto } from '@/Interfaces/Despesa/DespesaDto';
-import { TipoDespesaDto } from '@/Interfaces/TipoDespesa/TipoDespesaDto';
 import { despesaService } from '@/services/despesaService';
-import { tipoDespesaService } from '@/services/tipoDespesaService';
 import { authService } from '@/services/authService';
 
 interface NovaDespesaModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onDespesaAdicionada: (despesa: DespesaDto) => void;
-  despesaEdicao: DespesaDto | null;  
-  tiposDespesa: TipoDespesaDto[];    
+  onDespesaAdicionada: (novaDespesa: DespesaDto) => void;
+  tiposDespesa?: { id: number; descricao: string }[];
+  onSaved: () => void;
+  editingDespesa: DespesaDto | null;
 }
 
 export default function NovaDespesaModal({
   isOpen,
   onClose,
   onDespesaAdicionada,
-  despesaEdicao,
-  tiposDespesa,
+  tiposDespesa = [],
+  editingDespesa
 }: NovaDespesaModalProps) {
   const [descricao, setDescricao] = useState('');
-  const [valor, setValor] = useState<number>(0);
-  const [tipoDespesaId, setTipoDespesaId] = useState<number>(0);
-  const [recorrente, setRecorrente] = useState(false);
-  const [frequenciaRecorrencia, setFrequenciaRecorrencia] = useState('');
+  const [valor, setValor] = useState(0);
+  const [tipoDespesaId, setTipoDespesaId] = useState<number>(1);
+  const [prioridade, setPrioridade] = useState('Média');
 
   useEffect(() => {
-    if (despesaEdicao) {
-      setDescricao(despesaEdicao.descricao);
-      setValor(despesaEdicao.valor);
-      setTipoDespesaId(despesaEdicao.tipoDespesaId);
-      setRecorrente(despesaEdicao.recorrente);
-      setFrequenciaRecorrencia(despesaEdicao.frequenciaRecorrencia || '');
+    if (editingDespesa) {
+      setDescricao(editingDespesa.descricao);
+      setValor(editingDespesa.valor);
+      setTipoDespesaId(editingDespesa.tipoDespesaId);
+      setPrioridade(editingDespesa.prioridade);
     } else {
       setDescricao('');
       setValor(0);
-      setTipoDespesaId(0);
-      setRecorrente(false);
-      setFrequenciaRecorrencia('');
+      setTipoDespesaId(tiposDespesa[0]?.id || 1);
+      setPrioridade('Média');
     }
-  }, [despesaEdicao]);
+  }, [editingDespesa, tiposDespesa]);
 
   const handleSubmit = async () => {
-    if (
-        !descricao.trim() ||
-        valor <= 0 ||
-        tipoDespesaId === 0 ||
-        (recorrente && !frequenciaRecorrencia.trim())
-      ) {
-        alert('Por favor, preencha todos os campos obrigatórios corretamente.');
-        return;
-      }
-      
     try {
       const userInfo = await authService.getUserInfo();
       const hoje = new Date();
       const dataFormatada = hoje.toISOString().split('T')[0];
 
-      const despesaParaSalvar: DespesaDto = {
-        id: despesaEdicao ? despesaEdicao.id : 0,
+      const novaDespesa: DespesaDto = {
+        id: editingDespesa?.id ?? 0,
         descricao,
         valor,
-        data: despesaEdicao ? despesaEdicao.data : dataFormatada,
+        data: dataFormatada,
         tipoDespesaId,
-        usuarioId: userInfo.id || userInfo.Id,
-        recorrente,
-        frequenciaRecorrencia: recorrente ? frequenciaRecorrencia : '',
+        prioridade,
+        usuarioId: userInfo.id ?? userInfo.Id,
       };
 
-      const despesaSalva = despesaEdicao
-        ? await despesaService.atualizarDespesa(despesaParaSalvar)
-        : await despesaService.adicionarDespesa(despesaParaSalvar);
-
+      const despesaSalva = await despesaService.adicionarDespesa(novaDespesa);
       onDespesaAdicionada(despesaSalva);
       onClose();
     } catch (error) {
-      console.error("Erro ao salvar despesa:", error);
-      alert('Erro ao salvar despesa.');
+      alert('Erro ao adicionar despesa.');
+      console.error(error);
     }
   };
 
@@ -88,77 +68,61 @@ export default function NovaDespesaModal({
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
-        <h2 className="text-xl font-bold mb-4 text-gray-900">
-          {despesaEdicao ? 'Editar Despesa' : 'Adicionar Despesa'}
+        <h2 className="text-xl font-bold mb-4">
+          {editingDespesa ? 'Editar Despesa' : 'Adicionar Despesa'}
         </h2>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Descrição *</label>
+          <label className="block text-sm font-medium text-gray-700">Descrição</label>
           <input
             type="text"
-            className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
+            className="mt-1 w-full border border-gray-300 rounded-md p-2"
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
           />
         </div>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Valor *</label>
+          <label className="block text-sm font-medium text-gray-700">Valor</label>
           <input
             type="number"
             step="0.01"
-            min="0"
-            className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
+            className="mt-1 w-full border border-gray-300 rounded-md p-2"
             value={valor}
             onChange={(e) => setValor(parseFloat(e.target.value) || 0)}
           />
         </div>
 
+        {tiposDespesa.length > 0 && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Tipo de Despesa</label>
+            <select
+              className="mt-1 w-full border border-gray-300 rounded-md p-2"
+              value={tipoDespesaId}
+              onChange={(e) => setTipoDespesaId(parseInt(e.target.value))}
+            >
+              {tiposDespesa.map(tipo => (
+                <option key={tipo.id} value={tipo.id}>
+                  {tipo.descricao}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Tipo de Despesa *</label>
+          <label className="block text-sm font-medium text-gray-700">Prioridade</label>
           <select
-            className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
-            value={tipoDespesaId}
-            onChange={(e) => setTipoDespesaId(Number(e.target.value))}
+            className="mt-1 w-full border border-gray-300 rounded-md p-2"
+            value={prioridade}
+            onChange={(e) => setPrioridade(e.target.value)}
           >
-            <option value={0} disabled>Selecione um tipo</option>
-            {tiposDespesa.map((tipo) => (
-              <option key={tipo.id} value={tipo.id}>
-                {tipo.descricao}
-              </option>
-            ))}
+            <option value="Alta">Alta</option>
+            <option value="Média">Média</option>
+            <option value="Baixa">Baixa</option>
           </select>
         </div>
 
-        <div className="mb-4 flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="recorrente"
-            checked={recorrente}
-            onChange={(e) => setRecorrente(e.target.checked)}
-          />
-          <label htmlFor="recorrente" className="text-sm text-gray-700">
-            Despesa recorrente
-          </label>
-        </div>
-
-        {recorrente && (
-  <div className="mb-4">
-    <label className="block text-sm font-medium text-gray-700">
-      Frequência da Recorrência
-    </label>
-    <select
-      className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
-      value={frequenciaRecorrencia}
-      onChange={(e) => setFrequenciaRecorrencia(e.target.value)}
-    >
-    <option value="" disabled>Selecione uma opção</option>
-<option value="Semanal">Semanal</option>
-<option value="Mensal">Mensal</option>
-<option value="Anual">Anual</option>
-    </select>
-  </div>
-)}
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}

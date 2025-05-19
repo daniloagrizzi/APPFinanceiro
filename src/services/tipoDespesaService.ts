@@ -9,7 +9,6 @@ export const tipoDespesaService = {
         const dadosComPrioridade: TipoDespesaDto[] = dados.map((item: any) => ({
           id: item.id,
           descricao: item.descricao,
-          prioridade: item.prioridade ?? 0,  // usa 0 se não existir
         }));
       
         return dadosComPrioridade;
