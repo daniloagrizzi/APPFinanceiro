@@ -10,7 +10,7 @@ interface SidePannelProps {
 }
 
 const SidePannel: React.FC<SidePannelProps> = ({
-    profilePicture = "/perfil.jpg",
+    profilePicture = "/wo-axolot.png",
     userName = "username",
 }) => {
     const [realUserName, setRealUserName] = useState<string>(userName);
@@ -20,7 +20,7 @@ const SidePannel: React.FC<SidePannelProps> = ({
         const fetchUserName = async () => {
             try {
                 const userInfo = await authService.getUserInfo();
-                setRealUserName(userInfo.UserName || userInfo.userName); 
+                setRealUserName(userInfo.UserName || userInfo.Nome); 
             } catch (error) {
                 console.error("Erro ao buscar nome do usuário:", error);
                 setRealUserName("Nome não encontrado");
@@ -51,14 +51,14 @@ const SidePannel: React.FC<SidePannelProps> = ({
                     <ActionButton onClick={() => router.push('/financialProfile')} icon="Icons/SidePannel/User.png" text="Perfil" className="text-white" />
                     <ActionButton onClick={() => router.push('/Despesas')} icon="Icons/SidePannel/trophy-line.png" text="Despesas" className="text-white" />
                     <ActionButton onClick={() => router.push('/Rendas')} icon="Icons/SidePannel/flashlight-line.png" text="Rendas" className="text-white" />
-                    <ActionButton onClick={() => router.push('#')} className="mb-5 text-white" text="Metas" />
+                    <ActionButton onClick={() => router.push('#')} className="mb-5 text-white" icon="Icons/SidePannel/savings.png" text="Metas" />
                 </div>
 
                 <div className="w-[90%] border-t-1 mb-5 text-white">
                     {/* Other Buttons */}
-                    <ActionButton onClick={() => router.push('#')} text="Configurações" className="mt-5 text-white" />
-                    <ActionButton onClick={handleLogout} text="Sair" className="text-white" />
-                    <ActionButton onClick={() => router.push('#')} text="Ajuda" className="text-white" />
+                    <ActionButton onClick={() => router.push('#')} text="Configurações" icon="Icons/SidePannel/settings.png" className="mt-5 text-white" />
+                    <ActionButton onClick={handleLogout} text="Sair" icon="Icons/SidePannel/logout.png" className="text-white" />
+                    <ActionButton onClick={() => router.push('#')} text="Ajuda" icon="Icons/SidePannel/help.png" className="text-white" />
                 </div>
             </div>
         </>

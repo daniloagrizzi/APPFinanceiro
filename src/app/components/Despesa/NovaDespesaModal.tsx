@@ -45,11 +45,16 @@ export default function NovaDespesaModal({
   }, [despesaEdicao]);
 
   const handleSubmit = async () => {
-    if (!descricao.trim() || valor <= 0 || tipoDespesaId === 0) {
-      alert('Por favor, preencha todos os campos obrigatórios corretamente.');
-      return;
-    }
-
+    if (
+        !descricao.trim() ||
+        valor <= 0 ||
+        tipoDespesaId === 0 ||
+        (recorrente && !frequenciaRecorrencia.trim())
+      ) {
+        alert('Por favor, preencha todos os campos obrigatórios corretamente.');
+        return;
+      }
+      
     try {
       const userInfo = await authService.getUserInfo();
       const hoje = new Date();
@@ -83,7 +88,7 @@ export default function NovaDespesaModal({
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
-        <h2 className="text-xl font-bold mb-4">
+        <h2 className="text-xl font-bold mb-4 text-gray-900">
           {despesaEdicao ? 'Editar Despesa' : 'Adicionar Despesa'}
         </h2>
 
@@ -138,18 +143,22 @@ export default function NovaDespesaModal({
         </div>
 
         {recorrente && (
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Frequência da Recorrência</label>
-            <input
-              type="text"
-              placeholder="Ex: Mensal, Semanal"
-              className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
-              value={frequenciaRecorrencia}
-              onChange={(e) => setFrequenciaRecorrencia(e.target.value)}
-            />
-          </div>
-        )}
-
+  <div className="mb-4">
+    <label className="block text-sm font-medium text-gray-700">
+      Frequência da Recorrência
+    </label>
+    <select
+      className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
+      value={frequenciaRecorrencia}
+      onChange={(e) => setFrequenciaRecorrencia(e.target.value)}
+    >
+    <option value="" disabled>Selecione uma opção</option>
+<option value="Semanal">Semanal</option>
+<option value="Mensal">Mensal</option>
+<option value="Anual">Anual</option>
+    </select>
+  </div>
+)}
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}

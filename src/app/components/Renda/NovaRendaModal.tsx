@@ -64,7 +64,7 @@ export default function NovaRendaModal({
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
-        <h2 className="text-xl font-bold mb-4">
+        <h2 className="text-xl font-bold  text-gray-900">
           {editingRenda ? 'Editar Renda' : 'Adicionar Renda'}
         </h2>
 
