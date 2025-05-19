@@ -57,6 +57,7 @@ export const authService = {
   },
 
   logout() {
+
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('userId');
