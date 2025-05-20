@@ -203,7 +203,6 @@ export default function Despesas() {
       return [...prev, despesa];
     });
     
-    // Atualizar dados do gráfico após adicionar/editar despesa
     try {
       const porcentagensResponse = await dashboardService.buscarPorcentagemDeDespesas();
       if (porcentagensResponse && porcentagensResponse.PorcentagensPorTipo) {
@@ -219,8 +218,7 @@ export default function Despesas() {
       <SidePannel />
 
       <main className="w-full p-6 overflow-auto bg-white z-10">
-  <div className="w-full mx-auto"> {/* ← alterado de max-w-6xl */}
-
+  <div className="w-full mx-auto"> 
           <header className="flex justify-between items-center mb-8">
             <h1 className="text-2xl font-bold text-dark-purple">Minhas Despesas</h1>
             <button
