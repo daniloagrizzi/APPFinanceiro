@@ -18,17 +18,21 @@ export default function NovaRendaModal({
 }: NovaRendaModalProps) {
   const [descricao, setDescricao] = useState('');
   const [valor, setValor] = useState<number>(0);
+  const [variavel, setVariavel] = useState(false);
+
 
   useEffect(() => {
     if (editingRenda) {
       setDescricao(editingRenda.descricao);
       setValor(editingRenda.valor);
+      setVariavel(editingRenda.variavel); 
     } else {
       setDescricao('');
       setValor(0);
+      setVariavel(false); 
     }
   }, [editingRenda, isOpen]);
-
+  
   const handleSubmit = async () => {
     try {
       const userInfo = await authService.getUserInfo();
@@ -41,6 +45,7 @@ export default function NovaRendaModal({
         valor,
         data: editingRenda ? editingRenda.data : dataFormatada,
         usuarioId: userInfo.id || userInfo.Id,
+        variavel,
       };
 
       let rendaSalva: RendaDto;
@@ -64,7 +69,7 @@ export default function NovaRendaModal({
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
-        <h2 className="text-xl font-bold  text-gray-900">
+        <h2 className="text-xl font-bold mb-4 text-gray-900">
           {editingRenda ? 'Editar Renda' : 'Adicionar Renda'}
         </h2>
 
@@ -88,6 +93,19 @@ export default function NovaRendaModal({
             onChange={(e) => setValor(parseFloat(e.target.value) || 0)}
           />
         </div>
+        
+        <div className="mb-4">
+  <label className="flex items-center space-x-2">
+    <input
+      type="checkbox"
+      checked={variavel}
+      onChange={(e) => setVariavel(e.target.checked)}
+      className="form-checkbox"
+    />
+    <span>Renda Variável</span>
+  </label>
+</div>
+
 
         <div className="flex justify-end gap-2">
           <button
