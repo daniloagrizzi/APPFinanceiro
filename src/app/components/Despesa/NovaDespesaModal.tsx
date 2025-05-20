@@ -27,6 +27,7 @@ export default function NovaDespesaModal({
   const [tipoDespesaId, setTipoDespesaId] = useState<number>(0);
   const [recorrente, setRecorrente] = useState(false);
   const [frequenciaRecorrencia, setFrequenciaRecorrencia] = useState('');
+  const [prioridade, setPrioridade] = useState('Média');
 
   useEffect(() => {
     if (despesaEdicao) {
@@ -35,12 +36,14 @@ export default function NovaDespesaModal({
       setTipoDespesaId(despesaEdicao.tipoDespesaId);
       setRecorrente(despesaEdicao.recorrente);
       setFrequenciaRecorrencia(despesaEdicao.frequenciaRecorrencia || '');
+      setPrioridade(despesaEdicao.prioridade || 'Média');
     } else {
       setDescricao('');
       setValor(0);
       setTipoDespesaId(0);
       setRecorrente(false);
       setFrequenciaRecorrencia('');
+      setPrioridade('Média');
     }
   }, [despesaEdicao]);
 
@@ -49,7 +52,8 @@ export default function NovaDespesaModal({
         !descricao.trim() ||
         valor <= 0 ||
         tipoDespesaId === 0 ||
-        (recorrente && !frequenciaRecorrencia.trim())
+        (recorrente && !frequenciaRecorrencia.trim()) ||
+        !prioridade.trim()
       ) {
         alert('Por favor, preencha todos os campos obrigatórios corretamente.');
         return;
@@ -69,6 +73,7 @@ export default function NovaDespesaModal({
         usuarioId: userInfo.id || userInfo.Id,
         recorrente,
         frequenciaRecorrencia: recorrente ? frequenciaRecorrencia : '',
+        prioridade,
       };
 
       const despesaSalva = despesaEdicao
@@ -130,6 +135,19 @@ export default function NovaDespesaModal({
           </select>
         </div>
 
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Prioridade *</label>
+          <select
+            className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
+            value={prioridade}
+            onChange={(e) => setPrioridade(e.target.value)}
+          >
+            <option value="Alta">Alta</option>
+            <option value="Média">Média</option>
+            <option value="Baixa">Baixa</option>
+          </select>
+        </div>
+
         <div className="mb-4 flex items-center gap-2">
           <input
             type="checkbox"
@@ -152,10 +170,10 @@ export default function NovaDespesaModal({
       value={frequenciaRecorrencia}
       onChange={(e) => setFrequenciaRecorrencia(e.target.value)}
     >
-    <option value="" disabled>Selecione uma opção</option>
-<option value="Semanal">Semanal</option>
-<option value="Mensal">Mensal</option>
-<option value="Anual">Anual</option>
+      <option value="" disabled>Selecione uma opção</option>
+      <option value="Semanal">Semanal</option>
+      <option value="Mensal">Mensal</option>
+      <option value="Anual">Anual</option>
     </select>
   </div>
 )}

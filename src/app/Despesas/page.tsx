@@ -27,6 +27,7 @@ export default function Despesas() {
   const [despesaToDelete, setDespesaToDelete] = useState<DespesaDto | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [graficoData, setGraficoData] = useState<TipoDespesaComPorcentagemDto[]>([]);
+  const [filtroPrioridade, setFiltroPrioridade] = useState<string>('');
 
   const router = useRouter();
 
@@ -213,12 +214,16 @@ export default function Despesas() {
     }
   };
 
+  const despesasFiltradas = filtroPrioridade 
+    ? despesas.filter(d => d.prioridade === filtroPrioridade)
+    : despesas;
+
   return (
     <div className="flex h-screen relative">
       <SidePannel />
 
       <main className="w-full p-6 overflow-auto bg-white z-10">
-  <div className="w-full mx-auto"> 
+        <div className="w-full mx-auto"> 
           <header className="flex justify-between items-center mb-8">
             <h1 className="text-2xl font-bold text-dark-purple">Minhas Despesas</h1>
             <button
@@ -229,16 +234,34 @@ export default function Despesas() {
             </button>
           </header>
 
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Filtrar por prioridade</label>
+            <select
+              className="border border-gray-300 rounded-md p-2 text-gray-900"
+              value={filtroPrioridade}
+              onChange={(e) => setFiltroPrioridade(e.target.value)}
+            >
+              <option value="">Todas as prioridades</option>
+              <option value="Alta">Alta</option>
+              <option value="Média">Média</option>
+              <option value="Baixa">Baixa</option>
+            </select>
+          </div>
+
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1">
               {error && <p className="text-red-600 mb-4">{error}</p>}
               {isLoading ? (
                 <p>Carregando despesas...</p>
-              ) : despesas.length === 0 ? (
-                <p className="text-gray-600">Nenhuma despesa encontrada.</p>
+              ) : despesasFiltradas.length === 0 ? (
+                <p className="text-gray-600">
+                  {filtroPrioridade 
+                    ? `Nenhuma despesa encontrada com prioridade ${filtroPrioridade}.` 
+                    : 'Nenhuma despesa encontrada.'}
+                </p>
               ) : (
                 <section className="space-y-4">
-                  {despesas.map((despesa) => (
+                  {despesasFiltradas.map((despesa) => (
                     <DespesaCard
                       key={despesa.id}
                       despesa={despesa}
