@@ -8,7 +8,7 @@ interface Props {
   data: any[];
 }
 
-const cores = ['#221DAF', '#5A55D5', '#0AD611', '#EF0707', '#FFBB28', '#FF8042', '#636363', '#DDDDDD'];
+const cores = ['#70e000',  '#004d00',];
 
 export default function GraficoRendasPorVariavel({ data }: Props) {
   const [expandido, setExpandido] = useState(false);
@@ -27,14 +27,19 @@ export default function GraficoRendasPorVariavel({ data }: Props) {
 
   if (!data || !Array.isArray(data) || data.length === 0) {
     return (
-      <div className="bg-gray-100 rounded-2xl shadow p-6 w-1/2 h-[60vh] flex items-center justify-center">
-        <p className="text-gray-900 text-center text-base">Nenhum dado disponível para o gráfico.</p>
+      <div className="bg-white rounded-2xl shadow p-6 w-full h-[60vh] flex items-center justify-center">
+        <p className="text-gray-600 text-center text-base">Nenhum dado disponível para o gráfico.</p>
       </div>
     );
   }
 
   const dadosFormatados = data.map((item, index) => {
-    const variavel = item.Variavel || item.variavel || `Variável ${index + 1}`;
+    const variavel = item.variavel !== undefined 
+      ? (typeof item.variavel === 'boolean' 
+         ? (item.variavel ? "Variável" : "Fixa") 
+         : item.variavel) 
+      : item.Variavel || `Variável ${index + 1}`;
+    
     const porcentagem = typeof item.Porcentagem === 'number' ? item.Porcentagem
                         : typeof item.porcentagem === 'number' ? item.porcentagem
                         : 1;
@@ -53,7 +58,7 @@ export default function GraficoRendasPorVariavel({ data }: Props) {
   const cardContent = (
     <div
       ref={cardRef}
-      className={`bg-white rounded-2xl shadow-lg p-6 w-full max-w-4xl ${expandido ? 'h-[90vh]' : 'h-[80vh]'} flex flex-col justify-between relative`}
+      className={`bg-white rounded-2xl shadow-lg p-6 w-full ${expandido ? 'h-[70vh] w-full max-w-4xl' : 'h-[70vh] ' } flex flex-col justify-between relative`}
     >
       <button
         onClick={() => setExpandido(!expandido)}
@@ -67,7 +72,7 @@ export default function GraficoRendasPorVariavel({ data }: Props) {
       </button>
 
       <h2 className="text-xl font-semibold text-center text-gray-900 mb-4">
-        Distribuição de Rendas
+        Distribuição por renda
       </h2>
 
       <div className="flex-grow relative">
@@ -143,11 +148,11 @@ export default function GraficoRendasPorVariavel({ data }: Props) {
 
   return (
     <>
-      {expandido && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/30">
-          {cardContent}
-        </div>
-      )}
+     {expandido && (
+    <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-white/30 ">
+      {cardContent}
+    </div>
+)}
 
       {!expandido && (
         <div className="w-1/4 fixed">

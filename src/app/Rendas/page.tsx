@@ -47,7 +47,7 @@ export default function Rendas() {
     };
 
     verificarAutenticacao();
-  }, []);
+  }, [router]);
 
   const carregarDados = async () => {
     setIsLoading(true);
@@ -59,11 +59,60 @@ export default function Rendas() {
       setRendas(rendasResponse);
 
       // Carrega dados do gráfico
+      console.log("[Rendas] Iniciando carregamento dos dados do gráfico");
       const graficoResponse = await dashboardService.buscarPorcentagemDeRendas();
-      setDadosGrafico(graficoResponse.PorcentagensVariavel || []);
+      console.log("[Rendas] Resposta completa do dashboard:", graficoResponse);
+      
+      if (graficoResponse) {
+        console.log("[Rendas] Tipo da resposta:", typeof graficoResponse);
+        console.log("[Rendas] Chaves do objeto:", Object.keys(graficoResponse));
+        
+        // Verificar se temos o formato específico do backend
+        if (graficoResponse.porcentagensPorVariavel) {
+          console.log("[Rendas] Encontrado porcentagensPorVariavel");
+          // Tratar os dados para exibir Sim/Não em vez de true/false
+          const dadosFormatados = graficoResponse.porcentagensPorVariavel.map(item => ({
+            ...item,
+            // Converter booleano para texto mais amigável
+            variavel: item.variavel === true ? "Variável" : "Fixa"
+          }));
+          setDadosGrafico(dadosFormatados);
+        } 
+        // Checagem para outros formatos potenciais
+        else if (Array.isArray(graficoResponse)) {
+          console.log("[Rendas] Resposta é um array");
+          setDadosGrafico(graficoResponse);
+        } 
+        else if (graficoResponse.PorcentagensVariavel) {
+          console.log("[Rendas] Encontrado PorcentagensVariavel (PascalCase)");
+          setDadosGrafico(graficoResponse.PorcentagensVariavel);
+        } 
+        else if (graficoResponse.porcentagensVariavel) {
+          console.log("[Rendas] Encontrado porcentagensVariavel (camelCase)");
+          setDadosGrafico(graficoResponse.porcentagensVariavel);
+        } 
+        else {
+          console.log("[Rendas] Formato desconhecido, verificando outras propriedades");
+          // Se for um objeto único
+          const temPropriedadesDeVariavel = graficoResponse.Variavel !== undefined || 
+                                         graficoResponse.variavel !== undefined;
+          
+          if (temPropriedadesDeVariavel) {
+            console.log("[Rendas] O objeto parece ser um único item de porcentagem");
+            setDadosGrafico([graficoResponse]);
+          } else {
+            console.log("[Rendas] Formato desconhecido, não foi possível extrair dados para o gráfico");
+            setDadosGrafico([]);
+          }
+        }
+      } else {
+        console.warn("[Rendas] Resposta nula ou indefinida do dashboard");
+        setDadosGrafico([]);
+      }
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
       setError("Não foi possível carregar os dados. Por favor, tente novamente.");
+      setDadosGrafico([]);
     } finally {
       setIsLoading(false);
     }
@@ -138,31 +187,33 @@ export default function Rendas() {
             </button>
           </div>
 
-          {error && <p className="text-red-600 mb-4">{error}</p>}
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-1">
+              {error && <p className="text-red-600 mb-4">{error}</p>}
 
-          {isLoading ? (
-            <p>Carregando rendas...</p>
-          ) : rendas.length === 0 ? (
-            <p className="text-gray-600">Nenhuma renda encontrada.</p>
-          ) : (
-            <div className="space-y-4">
-              {rendas.map(renda => (
-                <RendaCard
-                  key={renda.id}
-                  renda={renda}
-                  onEdit={handleEdit}
-                  onDelete={() => solicitarConfirmacaoExclusao(renda)}
-                />
-              ))}
+              {isLoading ? (
+                <p>Carregando rendas...</p>
+              ) : rendas.length === 0 ? (
+                <p className="text-gray-600">Nenhuma renda encontrada.</p>
+              ) : (
+                <div className="space-y-4">
+                  {rendas.map(renda => (
+                    <RendaCard
+                      key={renda.id}
+                      renda={renda}
+                      onEdit={handleEdit}
+                      onDelete={() => solicitarConfirmacaoExclusao(renda)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-          )}
 
-          {/* Gráfico de rendas por variável */}
-          {dadosGrafico && dadosGrafico.length > 0 && (
-            <div className="mt-8">
+            {/* Gráfico de rendas por variável */}
+            <div className="md:w-1/2">
               <GraficoRendasPorVariavel data={dadosGrafico} />
             </div>
-          )}
+          </div>
 
           <NovaRendaModal
             isOpen={showAddModal}

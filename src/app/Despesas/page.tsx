@@ -55,7 +55,6 @@ export default function Despesas() {
     setIsLoading(true);
     setError(null);
     try {
-      // Carregamento paralelo dos dados
       const [tipos, despesas] = await Promise.all([
         tipoDespesaService.listarTipoDespesas(),
         despesaService.listarPorUsuario(),
@@ -64,13 +63,11 @@ export default function Despesas() {
       setTiposDespesa(tipos);
       setDespesas(despesas);
       
-      // Carregamento dos dados do gráfico
       try {
         console.log("[Despesas] Iniciando carregamento dos dados do gráfico");
         const porcentagensResponse = await dashboardService.buscarPorcentagemDeDespesas();
         console.log("[Despesas] Resposta completa do dashboard:", porcentagensResponse);
         
-        // Análise detalhada da resposta
         if (porcentagensResponse) {
           console.log("[Despesas] Tipo da resposta:", typeof porcentagensResponse);
           
@@ -81,7 +78,6 @@ export default function Despesas() {
               console.log("[Despesas] Primeiro item do array:", porcentagensResponse[0]);
               console.log("[Despesas] Chaves do primeiro item:", Object.keys(porcentagensResponse[0]));
               
-              // Verificar diferentes possibilidades de nomenclatura
               if (porcentagensResponse[0].PorcentagensPorTipo) {
                 console.log("[Despesas] Encontrado PorcentagensPorTipo (PascalCase)");
                 setGraficoData(porcentagensResponse[0].PorcentagensPorTipo);
@@ -91,7 +87,6 @@ export default function Despesas() {
               } else {
                 console.log("[Despesas] Nenhum campo de porcentagens encontrado no objeto");
                 
-                // Última tentativa - verificar se o próprio objeto já é a lista de porcentagens
                 const temPropriedadesDeTipoDespesa = porcentagensResponse[0].Tipo !== undefined || 
                                                    porcentagensResponse[0].tipo !== undefined;
                 
@@ -108,7 +103,6 @@ export default function Despesas() {
               setGraficoData([]);
             }
           } else {
-            // Resposta é um objeto
             console.log("[Despesas] Resposta é um objeto");
             console.log("[Despesas] Chaves do objeto:", Object.keys(porcentagensResponse));
             
