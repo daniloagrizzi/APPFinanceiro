@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import { authService } from "@/services/authService";
 import { rendaService } from "@/services/rendaService";
+import { dashboardService } from "@/services/dashboardService";
 import SidePannel from "../components/SidePannel/SidePannel";
 import RendaCard from "../components/Renda/RendaCard";
 import { RendaDto } from "@/Interfaces/Renda/RendaDto";
 import NovaRendaModal from "../components/Renda/NovaRendaModal";
 import ConfirmModal from "../components/UI/ConfirmModal";
+import GraficoRendasPorVariavel from "../components/Renda/GraficoRendasPorVariavel";
 
 export default function Rendas() {
   const [isAuth, setIsAuth] = useState(false);
@@ -20,6 +22,7 @@ export default function Rendas() {
   const [rendaToEdit, setRendaToEdit] = useState<RendaDto | null>(null);
   const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false);
   const [rendaToDelete, setRendaToDelete] = useState<RendaDto | null>(null);
+  const [dadosGrafico, setDadosGrafico] = useState<any[]>([]);
 
   const router = useRouter();
 
@@ -51,11 +54,16 @@ export default function Rendas() {
     setError(null);
 
     try {
+      // Carrega dados das rendas
       const rendasResponse = await rendaService.listarPorUsuario();
       setRendas(rendasResponse);
+
+      // Carrega dados do gráfico
+      const graficoResponse = await dashboardService.buscarPorcentagemDeRendas();
+      setDadosGrafico(graficoResponse.PorcentagensVariavel || []);
     } catch (error) {
-      console.error("Erro ao carregar rendas:", error);
-      setError("Não foi possível carregar as rendas. Por favor, tente novamente.");
+      console.error("Erro ao carregar dados:", error);
+      setError("Não foi possível carregar os dados. Por favor, tente novamente.");
     } finally {
       setIsLoading(false);
     }
@@ -76,6 +84,8 @@ export default function Rendas() {
       try {
         await rendaService.deletarRenda(rendaToDelete.id);
         setRendas(rendas.filter(r => r.id !== rendaToDelete.id));
+        // Recarregar dados após excluir para atualizar o gráfico
+        carregarDados();
       } catch (error) {
         console.error("Erro ao excluir renda:", error);
       } finally {
@@ -104,6 +114,8 @@ export default function Rendas() {
     } else {
       setRendas([...rendas, renda]);
     }
+    // Recarregar dados após adicionar/editar para atualizar gráfico
+    carregarDados();
   };
 
   if (!isAuth) return null;
@@ -142,6 +154,13 @@ export default function Rendas() {
                   onDelete={() => solicitarConfirmacaoExclusao(renda)}
                 />
               ))}
+            </div>
+          )}
+
+          {/* Gráfico de rendas por variável */}
+          {dadosGrafico && dadosGrafico.length > 0 && (
+            <div className="mt-8">
+              <GraficoRendasPorVariavel data={dadosGrafico} />
             </div>
           )}
 
