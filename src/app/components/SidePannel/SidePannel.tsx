@@ -49,8 +49,8 @@ const SidePannel: React.FC<SidePannelProps> = ({
                     {/* Primary Buttons */}
                     <ActionButton onClick={() => router.push('/dashboard')} icon="Icons/SidePannel/Dashboard.png" className="mt-5 text-white" text="Dashboard" />
                     <ActionButton onClick={() => router.push('/financialProfile')} icon="Icons/SidePannel/User.png" text="Perfil" className="text-white" />
-                    <ActionButton onClick={() => router.push('/Despesas')} icon="Icons/SidePannel/trophy-line.png" text="Despesas" className="text-white" />
-                    <ActionButton onClick={() => router.push('/Rendas')} icon="Icons/SidePannel/flashlight-line.png" text="Rendas" className="text-white" />
+                    <ActionButton onClick={() => router.push('/Rendas')} icon="Icons/SidePannel/payments.png" text="Rendas" className="text-white" />
+                    <ActionButton onClick={() => router.push('/Despesas')} icon="Icons/SidePannel/money_off.png" text="Despesas" className="text-white" />
                     <ActionButton onClick={() => router.push('#')} className="mb-5 text-white" icon="Icons/SidePannel/savings.png" text="Metas" />
                     <ActionButton onClick={() => router.push('/SorteioDeBitcoin')} className="mb-5 text-white" icon="Icons/SidePannel/bitcoin.png" text="Sorteio de Bitcoin" />
                 </div>
