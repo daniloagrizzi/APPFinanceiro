@@ -5,5 +5,6 @@ export interface RendaDto {
     valor: number;
     data: string; 
     usuarioId: string;
+    variavel: boolean;
 
 }

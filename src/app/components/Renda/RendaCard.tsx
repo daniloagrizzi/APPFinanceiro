@@ -46,6 +46,12 @@ const RendaCard = ({ renda, onEdit, onDelete }: RendaCardProps) => {
       currency: 'BRL',
     }).format(value);
   };
+  {renda.variavel && (
+    <span className="text-sm text-yellow-600 font-medium">
+      Renda Variável
+    </span>
+  )}
+  
 
   return (
     <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
