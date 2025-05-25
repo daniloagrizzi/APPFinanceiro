@@ -1,6 +1,17 @@
 import api from './api';
 
 // Interfaces atualizadas para corresponder ao backend (PascalCase)
+
+export interface RendasComPorcentagemDto {
+  Variavel: string;
+  ValorTotal: number;
+  Porcentagem: number;
+}
+export interface RendasPorcentagemPorVariavelDto {
+  Total: number;
+  PorcentagensVariavel: RendasComPorcentagemDto[];
+}
+
 export interface TipoDespesaComPorcentagemDto {
   Tipo: string;
   ValorTotal: number;
@@ -29,7 +40,16 @@ export const dashboardService = {
     console.log('Resposta da API dashboard:', response.data);
     return response.data;
   },
-
+async buscarPorcentagemDeRendas(): Promise<RendasPorcentagemPorVariavelDto> {
+    const token = localStorage.getItem('accessToken');
+    const response = await api.get('/DashBoard/GerarPorcentagensPorRendaVariavel', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    console.log('Resposta da API dashboard:', response.data);
+    return response.data;
+  },
   async ObterBalancoFinanceiro(): Promise<BalancoFinanceiroDto> {
     const token = localStorage.getItem('accessToken');
     const response = await api.get('/DashBoard/ObterBalancoFinanceiro', {

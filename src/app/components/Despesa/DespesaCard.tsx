@@ -49,6 +49,19 @@ const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCa
     return tipo ? tipo.descricao : 'Geral';
   };
 
+  const getPrioridadeColor = () => {
+    switch (despesa.prioridade) {
+      case 'Alta':
+        return 'bg-red-100 text-red-700';
+      case 'Média':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'Baixa':
+        return 'bg-green-100 text-green-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
+    }
+  };
+
   return (
     <div className="flex justify-between items-start py-4 px-3 bg-white shadow-sm rounded-xl border border-gray-100">
       <div className="flex items-start space-x-3">
@@ -65,6 +78,9 @@ const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCa
                 {getTipoDespesaNome()}
               </span>
             )}
+            <span className={`px-2 py-0.5 rounded-full ${getPrioridadeColor()}`}>
+              {despesa.prioridade || 'Média'}
+            </span>
           </div>
         </div>
       </div>
