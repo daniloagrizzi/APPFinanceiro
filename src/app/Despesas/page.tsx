@@ -186,7 +186,7 @@ export default function Despesas() {
             aria-label="Adicionar nova despesa"
             title="Adicionar renda"
           >
-            <Plus size={20} />
+            <Plus className="cursor-pointer" size={20} />
           </button>
         </div>
 

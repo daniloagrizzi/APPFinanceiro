@@ -187,7 +187,7 @@ export default function Rendas() {
             aria-label="Adicionar renda"
             title="Adicionar renda"
           >
-            <Plus size={20} />
+            <Plus className="cursor-pointer" size={20} />
           </button>
         </div>
 

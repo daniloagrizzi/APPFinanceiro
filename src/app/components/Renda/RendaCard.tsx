@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { RendaDto } from '@/Interfaces/Renda/RendaDto';
+import { Target, Calendar, TrendingUp, CheckCircle, Edit2, X } from 'lucide-react';
 
 interface RendaCardProps {
   renda: RendaDto;
@@ -54,7 +55,7 @@ const RendaCard = ({ renda, onEdit, onDelete }: RendaCardProps) => {
   
 
   return (
-    <div className="flex justify-between items-center py-3 border-b border-gray-100 last:border-b-0">
+    <div className="flex justify-between rounded-2xl items-center py-3 border-b last:border-b-0  hover:shadow-xl transition-all duration-300 p-6 border border-gray-100"> 
       <div className="flex items-center">
         <div className="flex items-center justify-center w-10 h-10 bg-green-50 text-green-500 rounded-full mr-3">
           <span className="text-lg font-semibold">R$</span>
@@ -75,19 +76,7 @@ const RendaCard = ({ renda, onEdit, onDelete }: RendaCardProps) => {
           aria-label="Editar"
           title="Editar"
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-            />
-          </svg>
+           <Edit2 className="w-4 h-4 cursor-pointer" />
         </button>
         <button
           onClick={handleDelete}
@@ -96,41 +85,11 @@ const RendaCard = ({ renda, onEdit, onDelete }: RendaCardProps) => {
           aria-label="Excluir"
           title="Excluir"
         >
-          {isLoading ? (
-            <svg
-              className="w-4 h-4 animate-spin"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              ></path>
-            </svg>
-          ) : (
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          )}
+            {isLoading ? (
+              <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+            ) : (
+              <X className="w-4 h-4 cursor-pointer" />
+            )}
         </button>
       </div>
     </div>
