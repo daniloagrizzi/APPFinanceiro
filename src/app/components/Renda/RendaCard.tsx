@@ -55,7 +55,7 @@ const RendaCard = ({ renda, onEdit, onDelete }: RendaCardProps) => {
   
 
   return (
-    <div className="flex justify-between rounded-2xl items-center py-3 border-b last:border-b-0  hover:shadow-xl transition-all duration-300 p-6 border border-gray-100"> 
+    <div className="flex justify-between rounded-2xl items-center py-3 border-b last:border-b-1  hover:shadow-xl transition-all duration-300 p-6 border border-gray-200"> 
       <div className="flex items-center">
         <div className="flex items-center justify-center w-10 h-10 bg-green-50 text-green-500 rounded-full mr-3">
           <span className="text-lg font-semibold">R$</span>
@@ -72,23 +72,23 @@ const RendaCard = ({ renda, onEdit, onDelete }: RendaCardProps) => {
         <button
           onClick={handleEdit}
           disabled={isLoading}
-          className="p-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors"
+          className="p-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors cursor-pointer"
           aria-label="Editar"
           title="Editar"
         >
-           <Edit2 className="w-4 h-4 cursor-pointer" />
+           <Edit2 className="w-4 h-4 " />
         </button>
         <button
           onClick={handleDelete}
           disabled={isLoading}
-          className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+          className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors cursor-pointer"
           aria-label="Excluir"
           title="Excluir"
         >
             {isLoading ? (
-              <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+              <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent "></div>
             ) : (
-              <X className="w-4 h-4 cursor-pointer" />
+              <X className="w-4 h-4 " />
             )}
         </button>
       </div>

@@ -35,7 +35,7 @@ const SidePannel: React.FC<SidePannelProps> = ({
         router.push('/login');
     };
 
-    const style = "bg-dark-purple flex flex-col items-center w-[250px] h-screen gap-4 text-white";
+    const style = "bg-dark-purple flex flex-col items-center w-[250px] h-screen gap-4 text-white ";
 
     return (
         <>

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { useRouter } from "next/navigation";
+import { Plus } from "lucide-react";
 import { authService } from "@/services/authService";
 import { rendaService } from "@/services/rendaService";
 import { dashboardService } from "@/services/dashboardService";
@@ -60,48 +60,55 @@ export default function Rendas() {
 
       // Carrega dados do gráfico
       console.log("[Rendas] Iniciando carregamento dos dados do gráfico");
-      const graficoResponse = await dashboardService.buscarPorcentagemDeRendas();
+      const graficoResponse =
+        await dashboardService.buscarPorcentagemDeRendas();
       console.log("[Rendas] Resposta completa do dashboard:", graficoResponse);
-      
+
       if (graficoResponse) {
         console.log("[Rendas] Tipo da resposta:", typeof graficoResponse);
         console.log("[Rendas] Chaves do objeto:", Object.keys(graficoResponse));
-        
+
         // Verificar se temos o formato específico do backend
         if (graficoResponse.porcentagensPorVariavel) {
           console.log("[Rendas] Encontrado porcentagensPorVariavel");
           // Tratar os dados para exibir Sim/Não em vez de true/false
-          const dadosFormatados = graficoResponse.porcentagensPorVariavel.map(item => ({
-            ...item,
-            // Converter booleano para texto mais amigável
-            variavel: item.variavel === true ? "Variável" : "Fixa"
-          }));
+          const dadosFormatados = graficoResponse.porcentagensPorVariavel.map(
+            (item) => ({
+              ...item,
+              // Converter booleano para texto mais amigável
+              variavel: item.variavel === true ? "Variável" : "Fixa",
+            })
+          );
           setDadosGrafico(dadosFormatados);
-        } 
+        }
         // Checagem para outros formatos potenciais
         else if (Array.isArray(graficoResponse)) {
           console.log("[Rendas] Resposta é um array");
           setDadosGrafico(graficoResponse);
-        } 
-        else if (graficoResponse.PorcentagensVariavel) {
+        } else if (graficoResponse.PorcentagensVariavel) {
           console.log("[Rendas] Encontrado PorcentagensVariavel (PascalCase)");
           setDadosGrafico(graficoResponse.PorcentagensVariavel);
-        } 
-        else if (graficoResponse.porcentagensVariavel) {
+        } else if (graficoResponse.porcentagensVariavel) {
           console.log("[Rendas] Encontrado porcentagensVariavel (camelCase)");
           setDadosGrafico(graficoResponse.porcentagensVariavel);
-        } 
-        else {
-          console.log("[Rendas] Formato desconhecido, verificando outras propriedades");
+        } else {
+          console.log(
+            "[Rendas] Formato desconhecido, verificando outras propriedades"
+          );
           // Se for um objeto único
-          const temPropriedadesDeVariavel = graficoResponse.Variavel !== undefined || 
-                                         graficoResponse.variavel !== undefined;
-          
+          const temPropriedadesDeVariavel =
+            graficoResponse.Variavel !== undefined ||
+            graficoResponse.variavel !== undefined;
+
           if (temPropriedadesDeVariavel) {
-            console.log("[Rendas] O objeto parece ser um único item de porcentagem");
+            console.log(
+              "[Rendas] O objeto parece ser um único item de porcentagem"
+            );
             setDadosGrafico([graficoResponse]);
           } else {
-            console.log("[Rendas] Formato desconhecido, não foi possível extrair dados para o gráfico");
+            console.log(
+              "[Rendas] Formato desconhecido, não foi possível extrair dados para o gráfico"
+            );
             setDadosGrafico([]);
           }
         }
@@ -111,7 +118,9 @@ export default function Rendas() {
       }
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
-      setError("Não foi possível carregar os dados. Por favor, tente novamente.");
+      setError(
+        "Não foi possível carregar os dados. Por favor, tente novamente."
+      );
       setDadosGrafico([]);
     } finally {
       setIsLoading(false);
@@ -132,7 +141,7 @@ export default function Rendas() {
     if (rendaToDelete) {
       try {
         await rendaService.deletarRenda(rendaToDelete.id);
-        setRendas(rendas.filter(r => r.id !== rendaToDelete.id));
+        setRendas(rendas.filter((r) => r.id !== rendaToDelete.id));
         // Recarregar dados após excluir para atualizar o gráfico
         carregarDados();
       } catch (error) {
@@ -155,7 +164,7 @@ export default function Rendas() {
   };
 
   const handleRendaAdicionada = (renda: RendaDto) => {
-    const index = rendas.findIndex(r => r.id === renda.id);
+    const index = rendas.findIndex((r) => r.id === renda.id);
     if (index >= 0) {
       const novasRendas = [...rendas];
       novasRendas[index] = renda;
@@ -167,85 +176,93 @@ export default function Rendas() {
     carregarDados();
   };
 
-  const rendasFiltradas = filtroVariavel === null
-  ? rendas
-  : rendas.filter(r => r.variavel === filtroVariavel);
+  const rendasFiltradas =
+    filtroVariavel === null
+      ? rendas
+      : rendas.filter((r) => r.variavel === filtroVariavel);
   if (!isAuth) return null;
 
   return (
-    <div className="flex h-screen">
-    <SidePannel />
+    <div className="flex h-screen w-screen">
+      <SidePannel />
 
-    <div className="w-full p-6 overflow-auto bg-white">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-dark-purple">Minhas Rendas</h1>
-          <button
-            onClick={handleAddNew}
-            className="flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors"
-            aria-label="Adicionar renda"
-            title="Adicionar renda"
-          >
-            <Plus className="cursor-pointer" size={20} />
-          </button>
-        </div>
-
-        {/* Filtro */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Filtrar rendas
-          </label>
-          <select
-            className="border border-gray-300 rounded-md p-2 text-gray-900"
-            value={filtroVariavel === null ? "" : String(filtroVariavel)}
-            onChange={(e) => {
-              const valor = e.target.value;
-              if (valor === "") {
-                setFiltroVariavel(null);
-              } else {
-                setFiltroVariavel(valor === "true");
-              }
-            }}
-          >
-            <option value="">Todas</option>
-            <option value="false">Fixa</option>
-            <option value="true">Variável</option>
-          </select>
-        </div>
-
-        {/* Conteúdo */}
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Lista de Rendas */}
-          <div className="flex-1">
-            {error && <p className="text-red-600 mb-4">{error}</p>}
-
-            {isLoading ? (
-              <p>Carregando rendas...</p>
-            ) : rendasFiltradas.length === 0 ? (
-              <p className="text-gray-600">
-                {filtroVariavel === true
-                  ? 'Nenhuma renda variável encontrada.'
-                  : filtroVariavel === false
-                  ? 'Nenhuma renda fixa encontrada.'
-                  : 'Nenhuma renda encontrada.'}
-              </p>
-            ) : (
-              <div className="space-y-4">
-                {rendasFiltradas.map((renda) => (
-                  <RendaCard
-                    key={renda.id}
-                    renda={renda}
-                    onEdit={handleEdit}
-                    onDelete={() => solicitarConfirmacaoExclusao(renda)}
-                  />
-                ))}
-              </div>
-            )}
+      <div className="w-full p-6 overflow-auto bg-white">
+        <div className="flex flex-col items max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="flex flex-1 flex-col gap-4 mb-4 fixed bg-white/80 shadow rounded-2xl hover:bg-white transition ">
+            <div className="m-2">
+            <div className="flex gap-4 items-center">
+            <h1 className="text-2xl font-bold text-dark-purple">
+              Minhas Rendas
+            </h1>
+            <button
+              onClick={handleAddNew}
+              className="flex items-center justify-center w-10 h-10 bg-indigo-500 text-white rounded-full hover:bg-indigo-700 transition-colors cursor-pointer"
+              aria-label="Adicionar renda"
+              title="Adicionar renda"
+            >
+              <Plus className="" size={20} />
+            </button>
+            </div>
+              {/* Filtro */}
+            <div className="">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Filtrar rendas
+              </label>
+              <select
+                className="border border-gray-200 rounded-lg p-2 text-gray-900 bg-white"
+                value={filtroVariavel === null ? "" : String(filtroVariavel)}
+                onChange={(e) => {
+                  const valor = e.target.value;
+                  if (valor === "") {
+                    setFiltroVariavel(null);
+                  } else {
+                    setFiltroVariavel(valor === "true");
+                  }
+                }}
+              >
+                <option value="">Todas</option>
+                <option value="false">Fixa</option>
+                <option value="true">Variável</option>
+              </select>
+            </div>
+            </div>
           </div>
 
+        
+
+          {/* Conteúdo */}
+          <div className="flex flex-col md:flex-row gap-6 pt-34">
+            {/* Lista de Rendas */}
+            <div className="flex-1">
+              {error && <p className="text-red-600 mb-4">{error}</p>}
+
+              {isLoading ? (
+                <p>Carregando rendas...</p>
+              ) : rendasFiltradas.length === 0 ? (
+                <p className="text-gray-600">
+                  {filtroVariavel === true
+                    ? "Nenhuma renda variável encontrada."
+                    : filtroVariavel === false
+                    ? "Nenhuma renda fixa encontrada."
+                    : "Nenhuma renda encontrada."}
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {rendasFiltradas.map((renda) => (
+                    <RendaCard
+                      key={renda.id}
+                      renda={renda}
+                      onEdit={handleEdit}
+                      onDelete={() => solicitarConfirmacaoExclusao(renda)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Gráfico de rendas por variável */}
-            <div className="md:w-1/2">
+            <div className="md:w-1/2 sr-only sm:not-sr-only ">
               <GraficoRendasPorVariavel data={dadosGrafico} />
             </div>
           </div>

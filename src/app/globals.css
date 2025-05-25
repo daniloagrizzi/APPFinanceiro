@@ -78,7 +78,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-body {
+html {
   font-family: poppins sans-serif;
 }
 
