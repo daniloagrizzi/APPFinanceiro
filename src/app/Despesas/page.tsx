@@ -27,7 +27,7 @@ export default function Despesas() {
   const [despesaToDelete, setDespesaToDelete] = useState<DespesaDto | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [graficoData, setGraficoData] = useState<TipoDespesaComPorcentagemDto[]>([]);
-  const [filtroPrioridade, setFiltroPrioridade] = useState<string>('');
+  const [filtroPrioridade, setFiltroPrioridade] = useState<string>("");
 
   const router = useRouter();
 
@@ -38,7 +38,7 @@ export default function Despesas() {
       return;
     }
 
-    const autenticarECarregar = async () => {
+    async function autenticarECarregar() {
       try {
         await authService.getUserInfo();
         await carregarDados();
@@ -46,11 +46,55 @@ export default function Despesas() {
         console.error("Erro de autenticação:", err);
         router.push("/login");
       }
-    };
+    }
 
     autenticarECarregar();
   }, [router]);
 
+  const atualizarDadosGrafico = async () => {
+    try {
+      const response = await dashboardService.buscarPorcentagemDeDespesas();
+  
+      if (!response) {
+        setGraficoData([]);
+        return;
+      }
+  
+      if (Array.isArray(response)) {
+        if (response.length === 0) {
+          setGraficoData([]);
+        } else if (response[0].PorcentagensPorTipo) {
+          setGraficoData(response[0].PorcentagensPorTipo);
+        } else if (response[0].porcentagensPorTipo) {
+          setGraficoData(response[0].porcentagensPorTipo);
+        } else {
+          const temPropriedades = response[0].Tipo !== undefined || response[0].tipo !== undefined;
+          if (temPropriedades) {
+            setGraficoData(response);
+          } else {
+            setGraficoData([]);
+          }
+        }
+      } else {
+        if (response.PorcentagensPorTipo) {
+          setGraficoData(response.PorcentagensPorTipo);
+        } else if (response.porcentagensPorTipo) {
+          setGraficoData(response.porcentagensPorTipo);
+        } else {
+          const temPropriedades = response.Tipo !== undefined || response.tipo !== undefined;
+          if (temPropriedades) {
+            setGraficoData([response]);
+          } else {
+            setGraficoData([]);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar dados do gráfico:", error);
+      setGraficoData([]);
+    }
+  };
+  
   const carregarDados = async () => {
     setIsLoading(true);
     setError(null);
@@ -59,81 +103,11 @@ export default function Despesas() {
         tipoDespesaService.listarTipoDespesas(),
         despesaService.listarPorUsuario(),
       ]);
-      
       setTiposDespesa(tipos);
       setDespesas(despesas);
-      
-      try {
-        console.log("[Despesas] Iniciando carregamento dos dados do gráfico");
-        const porcentagensResponse = await dashboardService.buscarPorcentagemDeDespesas();
-        console.log("[Despesas] Resposta completa do dashboard:", porcentagensResponse);
-        
-        if (porcentagensResponse) {
-          console.log("[Despesas] Tipo da resposta:", typeof porcentagensResponse);
-          
-          if (Array.isArray(porcentagensResponse)) {
-            console.log("[Despesas] Resposta é um array com", porcentagensResponse.length, "itens");
-            
-            if (porcentagensResponse.length > 0) {
-              console.log("[Despesas] Primeiro item do array:", porcentagensResponse[0]);
-              console.log("[Despesas] Chaves do primeiro item:", Object.keys(porcentagensResponse[0]));
-              
-              if (porcentagensResponse[0].PorcentagensPorTipo) {
-                console.log("[Despesas] Encontrado PorcentagensPorTipo (PascalCase)");
-                setGraficoData(porcentagensResponse[0].PorcentagensPorTipo);
-              } else if (porcentagensResponse[0].porcentagensPorTipo) {
-                console.log("[Despesas] Encontrado porcentagensPorTipo (camelCase)");
-                setGraficoData(porcentagensResponse[0].porcentagensPorTipo);
-              } else {
-                console.log("[Despesas] Nenhum campo de porcentagens encontrado no objeto");
-                
-                const temPropriedadesDeTipoDespesa = porcentagensResponse[0].Tipo !== undefined || 
-                                                   porcentagensResponse[0].tipo !== undefined;
-                
-                if (temPropriedadesDeTipoDespesa) {
-                  console.log("[Despesas] O array parece conter diretamente os itens de porcentagem");
-                  setGraficoData(porcentagensResponse);
-                } else {
-                  console.log("[Despesas] Formato desconhecido, não foi possível extrair dados para o gráfico");
-                  setGraficoData([]);
-                }
-              }
-            } else {
-              console.log("[Despesas] Array vazio recebido");
-              setGraficoData([]);
-            }
-          } else {
-            console.log("[Despesas] Resposta é um objeto");
-            console.log("[Despesas] Chaves do objeto:", Object.keys(porcentagensResponse));
-            
-            if (porcentagensResponse.PorcentagensPorTipo) {
-              console.log("[Despesas] Encontrado PorcentagensPorTipo (PascalCase)");
-              setGraficoData(porcentagensResponse.PorcentagensPorTipo);
-            } else if (porcentagensResponse.porcentagensPorTipo) {
-              console.log("[Despesas] Encontrado porcentagensPorTipo (camelCase)");
-              setGraficoData(porcentagensResponse.porcentagensPorTipo);
-            } else {
-              // Verificar se o próprio objeto já é um item único de resposta
-              const temPropriedadesDeTipoDespesa = porcentagensResponse.Tipo !== undefined || 
-                                                 porcentagensResponse.tipo !== undefined;
-              
-              if (temPropriedadesDeTipoDespesa) {
-                console.log("[Despesas] O objeto parece ser um único item de porcentagem");
-                setGraficoData([porcentagensResponse]);
-              } else {
-                console.log("[Despesas] Formato desconhecido, não foi possível extrair dados para o gráfico");
-                setGraficoData([]);
-              }
-            }
-          }
-        } else {
-          console.warn("[Despesas] Resposta nula ou indefinida do dashboard");
-          setGraficoData([]);
-        }
-      } catch (graphErr) {
-        console.error("[Despesas] Erro ao carregar dados do gráfico:", graphErr);
-        setGraficoData([]);
-      }
+  
+      await atualizarDadosGrafico();
+  
     } catch (err) {
       console.error("[Despesas] Erro ao carregar dados principais:", err);
       setError("Não foi possível carregar as despesas. Tente novamente.");
@@ -141,38 +115,30 @@ export default function Despesas() {
       setIsLoading(false);
     }
   };
+  
 
-  const handleAddNew = () => {
+  function handleAddNew() {
     setDespesaToEdit(null);
     setShowAddModal(true);
-  };
+  }
 
-  const handleEdit = (despesa: DespesaDto) => {
+  function handleEdit(despesa: DespesaDto) {
     setDespesaToEdit(despesa);
     setShowAddModal(true);
-  };
+  }
 
-  const solicitarConfirmacaoExclusao = (despesa: DespesaDto) => {
+  function solicitarConfirmacaoExclusao(despesa: DespesaDto) {
     setDespesaToDelete(despesa);
     setConfirmDeleteModalOpen(true);
-  };
+  }
 
   const confirmarExclusao = async () => {
     if (!despesaToDelete) return;
-
+  
     try {
       await despesaService.deletarDespesa(despesaToDelete.id);
       setDespesas((prev) => prev.filter((d) => d.id !== despesaToDelete.id));
-      
-      // Recarregar dados do gráfico após exclusão
-      try {
-        const porcentagensResponse = await dashboardService.buscarPorcentagemDeDespesas();
-        if (porcentagensResponse && porcentagensResponse.PorcentagensPorTipo) {
-          setGraficoData(porcentagensResponse.PorcentagensPorTipo);
-        }
-      } catch (graphErr) {
-        console.error("Erro ao atualizar dados do gráfico:", graphErr);
-      }
+      await atualizarDadosGrafico();
     } catch (err) {
       console.error("Erro ao excluir despesa:", err);
       setError("Não foi possível excluir a despesa. Tente novamente.");
@@ -181,11 +147,11 @@ export default function Despesas() {
       setDespesaToDelete(null);
     }
   };
-
-  const handleCloseModal = () => {
+  
+  function handleCloseModal() {
     setShowAddModal(false);
     setDespesaToEdit(null);
-  };
+  }
 
   const handleDespesaAdicionada = async (despesa: DespesaDto) => {
     setDespesas((prev) => {
@@ -197,19 +163,12 @@ export default function Despesas() {
       }
       return [...prev, despesa];
     });
-    
-    try {
-      const porcentagensResponse = await dashboardService.buscarPorcentagemDeDespesas();
-      if (porcentagensResponse && porcentagensResponse.PorcentagensPorTipo) {
-        setGraficoData(porcentagensResponse.PorcentagensPorTipo);
-      }
-    } catch (graphErr) {
-      console.error("Erro ao atualizar dados do gráfico:", graphErr);
-    }
+    await atualizarDadosGrafico();
   };
+  
 
-  const despesasFiltradas = filtroPrioridade 
-    ? despesas.filter(d => d.prioridade === filtroPrioridade)
+  const despesasFiltradas = filtroPrioridade
+    ? despesas.filter((d) => d.prioridade === filtroPrioridade)
     : despesas;
 
   return (
@@ -217,21 +176,27 @@ export default function Despesas() {
       <SidePannel />
 
       <main className="w-full p-6 overflow-auto bg-white z-10">
-        <div className="w-full mx-auto"> 
-          <header className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl font-bold text-dark-purple">Minhas Despesas</h1>
-            <button
-              onClick={handleAddNew}
-              className="flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors"
-            >
-              <Plus size={20} />
-            </button>
-          </header>
+      <div className="max-w-4xl mx-auto">
+              {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold text-dark-purple">Minhas Despesas</h1>
+          <button
+            onClick={handleAddNew}
+            className="flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors"
+            aria-label="Adicionar nova despesa"
+            title="Adicionar renda"
+          >
+            <Plus size={20} />
+          </button>
+        </div>
 
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Filtrar por prioridade</label>
+          <div className="mb-4 max-w-xs">
+            <label htmlFor="filtroPrioridade" className="block text-sm font-medium text-gray-700 mb-1">
+              Filtrar por prioridade
+            </label>
             <select
-              className="border border-gray-300 rounded-md p-2 text-gray-900"
+              id="filtroPrioridade"
+              className="border border-gray-300 rounded-md p-2 text-gray-900 w-full"
               value={filtroPrioridade}
               onChange={(e) => setFiltroPrioridade(e.target.value)}
             >
@@ -245,13 +210,14 @@ export default function Despesas() {
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1">
               {error && <p className="text-red-600 mb-4">{error}</p>}
+
               {isLoading ? (
                 <p>Carregando despesas...</p>
               ) : despesasFiltradas.length === 0 ? (
                 <p className="text-gray-600">
-                  {filtroPrioridade 
-                    ? `Nenhuma despesa encontrada com prioridade ${filtroPrioridade}.` 
-                    : 'Nenhuma despesa encontrada.'}
+                  {filtroPrioridade
+                    ? `Nenhuma despesa encontrada com prioridade ${filtroPrioridade}.`
+                    : "Nenhuma despesa encontrada."}
                 </p>
               ) : (
                 <section className="space-y-4">

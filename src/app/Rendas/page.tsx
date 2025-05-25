@@ -23,7 +23,7 @@ export default function Rendas() {
   const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false);
   const [rendaToDelete, setRendaToDelete] = useState<RendaDto | null>(null);
   const [dadosGrafico, setDadosGrafico] = useState<any[]>([]);
-
+  const [filtroVariavel, setFiltroVariavel] = useState<boolean | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -167,47 +167,82 @@ export default function Rendas() {
     carregarDados();
   };
 
+  const rendasFiltradas = filtroVariavel === null
+  ? rendas
+  : rendas.filter(r => r.variavel === filtroVariavel);
   if (!isAuth) return null;
 
   return (
     <div className="flex h-screen">
-      <SidePannel />
+    <SidePannel />
 
-      <div className="w-full p-6 overflow-auto bg-white">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl font-bold text-dark-purple">Minhas Rendas</h1>
-            <button
-              onClick={handleAddNew}
-              className="flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors"
-              aria-label="Adicionar renda"
-              title="Adicionar renda"
-            >
-              <Plus size={20} />
-            </button>
+    <div className="w-full p-6 overflow-auto bg-white">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-2xl font-bold text-dark-purple">Minhas Rendas</h1>
+          <button
+            onClick={handleAddNew}
+            className="flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors"
+            aria-label="Adicionar renda"
+            title="Adicionar renda"
+          >
+            <Plus size={20} />
+          </button>
+        </div>
+
+        {/* Filtro */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Filtrar rendas
+          </label>
+          <select
+            className="border border-gray-300 rounded-md p-2 text-gray-900"
+            value={filtroVariavel === null ? "" : String(filtroVariavel)}
+            onChange={(e) => {
+              const valor = e.target.value;
+              if (valor === "") {
+                setFiltroVariavel(null);
+              } else {
+                setFiltroVariavel(valor === "true");
+              }
+            }}
+          >
+            <option value="">Todas</option>
+            <option value="false">Fixa</option>
+            <option value="true">Variável</option>
+          </select>
+        </div>
+
+        {/* Conteúdo */}
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Lista de Rendas */}
+          <div className="flex-1">
+            {error && <p className="text-red-600 mb-4">{error}</p>}
+
+            {isLoading ? (
+              <p>Carregando rendas...</p>
+            ) : rendasFiltradas.length === 0 ? (
+              <p className="text-gray-600">
+                {filtroVariavel === true
+                  ? 'Nenhuma renda variável encontrada.'
+                  : filtroVariavel === false
+                  ? 'Nenhuma renda fixa encontrada.'
+                  : 'Nenhuma renda encontrada.'}
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {rendasFiltradas.map((renda) => (
+                  <RendaCard
+                    key={renda.id}
+                    renda={renda}
+                    onEdit={handleEdit}
+                    onDelete={() => solicitarConfirmacaoExclusao(renda)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1">
-              {error && <p className="text-red-600 mb-4">{error}</p>}
-
-              {isLoading ? (
-                <p>Carregando rendas...</p>
-              ) : rendas.length === 0 ? (
-                <p className="text-gray-600">Nenhuma renda encontrada.</p>
-              ) : (
-                <div className="space-y-4">
-                  {rendas.map(renda => (
-                    <RendaCard
-                      key={renda.id}
-                      renda={renda}
-                      onEdit={handleEdit}
-                      onDelete={() => solicitarConfirmacaoExclusao(renda)}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
 
             {/* Gráfico de rendas por variável */}
             <div className="md:w-1/2">
