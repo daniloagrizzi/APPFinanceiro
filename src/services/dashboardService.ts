@@ -36,6 +36,27 @@ export interface RelatorioMensalDto {
   totalDespesas: number;
   saldo: number;
 }
+export interface SugerirCortesDto {
+  montanteCDI: number;
+  montanteSELIC: number;
+  montanteIPCA: number;
+  montanteTotal: number;
+  sugestaoDeCorteDespesa: SugestaoDeCorteDespesaDto[];
+  sugestaoReducaoTipoDeDespesa: SugestaoReducaoTipoDeDespesaDto[];
+}
+export interface SugestaoReducaoTipoDeDespesaDto {
+  tipoDespesaDescricao: string;
+  valorTotalASerReduzido: number;
+}
+
+export interface SugestaoDeCorteDespesaDto {
+  despesaId: number;
+  descricaoDespesa: string;
+  valor: number;
+  motivo?: string;
+}
+
+
 export const dashboardService = {
   async buscarPorcentagemDeDespesas(): Promise<DespesasPorcentagemPorTipoDto> {
     const token = localStorage.getItem('accessToken');
@@ -93,6 +114,16 @@ export const dashboardService = {
    async  gerarRelatoriosMensais(): Promise<RelatorioMensalDto> {
     const token = localStorage.getItem('accessToken');
     const response = await api.get('/DashBoard/GerarRelatoriosMensais', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    console.log('Resposta da API dashboard:', response.data);
+    return response.data;
+  },
+    async  gerenciadorInteligente(): Promise<SugerirCortesDto> {
+    const token = localStorage.getItem('accessToken');
+    const response = await api.get('/DashBoard/gerenciadorInteligente', {
       headers: {
         Authorization: `Bearer ${token}`
       }

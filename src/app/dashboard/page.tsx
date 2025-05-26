@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { DollarSign, TrendingUp, TrendingDown, AlertTriangle, Calendar, Tag, Repeat } from 'lucide-react';
+import { AlertTriangle, Settings } from 'lucide-react';
 import { authService } from "@/services/authService";
-import { dashboardService, BalancoFinanceiroDto, DespesasPorcentagemPorTipoDto } from "@/services/dashboardService";
 import SidePannel from "../components/SidePannel/SidePannel";
 import FinancialBalanceCard from '../components/Dashboard/FinancialBalanceCard';
 import MonthlyEvolutionCard from '../components/Dashboard/MonthlyEvolutionCard';
+import FinancialManagerModal from '../components/Dashboard/FinancialManagerModal'; // Importe o novo modal
 
 export default function Dashboard() {
   const [isAuth, setIsAuth] = useState(false);
@@ -19,6 +18,8 @@ export default function Dashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isManagerModalOpen, setIsManagerModalOpen] = useState(false);
+  const [userScore, setUserScore] = useState(860); // Score simulado
   const router = useRouter();
 
   useEffect(() => {
@@ -33,7 +34,6 @@ export default function Dashboard() {
       try {
         setLoading(true);
         
-        // Buscar informações do usuário
         const userData = await authService.getUserInfo();
         setUserInfo({
           UserName: userData.UserName || userData.userName || '', 
@@ -44,7 +44,6 @@ export default function Dashboard() {
       } catch (error) {
         console.error('Erro ao buscar dados do usuário:', error);
         setError('Erro ao carregar dados do usuário');
-        // Redirecionar para login se houver erro de autenticação
         router.push("/login");
       } finally {
         setLoading(false);
@@ -90,30 +89,54 @@ export default function Dashboard() {
       <SidePannel />
 
       <div className="flex-1 overflow-y-auto">
-        <div className="p-6">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Dashboard Financeiro
-            </h1>
-            <p className="text-gray-600">
-              Bem-vindo, {userInfo.UserName}! Aqui está sua visão geral financeira.
-            </p>
-          </div>
-
-          {/* Cards Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-            {/* Card de Balanço Financeiro */}
-            <div className="lg:col-span-1">
-              <FinancialBalanceCard />
+        {/* Header */}
+        <div className="bg-white shadow-sm border-b border-gray-200 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Dashboard Financeiro
+              </h1>
+              <p className="text-gray-600">
+                Bem-vindo, {userInfo.UserName}! Aqui está sua visão geral financeira.
+              </p>
             </div>
-{/* Card de Evolução Mensal */}
-  <div className="lg:col-span-1">
-    <MonthlyEvolutionCard />
-  </div>
+            <div className="flex items-center space-x-6">
+              <button
+                onClick={() => setIsManagerModalOpen(true)}
+                className="flex items-center space-x-2 px-6 py-3 text-white rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer
+                  bg-gradient-to-r from-[#221DAF] via-[#5A55D5] to-[#6291D8] 
+                  hover:from-[#1e1a9e] hover:via-[#4745b6] hover:to-[#598ef1]"
+              >
+                <Settings className="w-5 h-5 cursor-pointer" />
+                <span className="font-medium">Usar gerenciador</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
+            {/* Gráfico de Evolução Mensal - 2/3 da largura */}
+            <div className="xl:col-span-2 h-full">
+              <MonthlyEvolutionCard />
+            </div>
+            
+            {/* Card de Balanço Financeiro - 1/3 da largura */}
+            <div className="xl:col-span-1 h-full flex items-start">
+              <div className="w-full">
+                <FinancialBalanceCard />
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Modal do Gerenciador Inteligente */}
+      <FinancialManagerModal 
+        isOpen={isManagerModalOpen} 
+        onClose={() => setIsManagerModalOpen(false)} 
+      />
+    </div>
   );
 }
