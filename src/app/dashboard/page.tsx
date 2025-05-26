@@ -1,10 +1,13 @@
 'use client';
+
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { DollarSign, TrendingUp, TrendingDown, AlertTriangle, Calendar, Tag, Repeat } from 'lucide-react';
 import { authService } from "@/services/authService";
+import { dashboardService, BalancoFinanceiroDto, DespesasPorcentagemPorTipoDto } from "@/services/dashboardService";
 import SidePannel from "../components/SidePannel/SidePannel";
-
-
+import FinancialBalanceCard from '../components/Dashboard/FinancialBalanceCard';
 
 export default function Dashboard() {
   const [isAuth, setIsAuth] = useState(false);
@@ -13,58 +16,100 @@ export default function Dashboard() {
     Email: '',
     UserName: '',
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const token = typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null;
 
     if (!token) {
       router.push("/login");
       return;
     }
 
-    const fetchUserInfo = async () => {
+    const fetchData = async () => {
       try {
-        const data = await authService.getUserInfo();
+        setLoading(true);
+        
+        // Buscar informações do usuário
+        const userData = await authService.getUserInfo();
         setUserInfo({
-          UserName: data.UserName || data.userName,
-          Email: data.Email || data.email,
-          Id: data.Id || data.id
+          UserName: userData.UserName || userData.userName || '', 
+          Email: userData.Email || userData.email || '',
+          Id: userData.Id || userData.id || ''
         });
         setIsAuth(true);
       } catch (error) {
-        console.error("Erro ao buscar informações do usuário:", error);
-        setIsAuth(false);
+        console.error('Erro ao buscar dados do usuário:', error);
+        setError('Erro ao carregar dados do usuário');
+        // Redirecionar para login se houver erro de autenticação
         router.push("/login");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchUserInfo();
-  }, []);
+    fetchData();
+  }, [router]);
 
-  if (!isAuth) return null;
-
-  return (
-
-    <div className="flex h-screen">
-      <SidePannel></SidePannel>    {/* Lado Esquerdo (Perfil do Usuário) */}
-      <div className="w-full lg:w-screen flex items-center justify-center bg-white px-8">
-        <div className="w-full max-w-md text-center">
-          <h1 className="text-h1 font-bold text-dark-purple mb-10">Wo! Money</h1>
-          <div className="w-44 h-44 mx-auto rounded-full overflow-hidden shadow-md mb-6">
-            <img src="/perfil.jpg" alt="Perfil" className="w-full h-full object-cover" />
-          </div>
-          <h2 className="text-xl font-semibold text-dark-purple mb-2">
-            Bem-vindo, <span className="font-extrabold">{userInfo.UserName}</span>!
-          </h2>
-          <p className="text-base font-medium text-gray-dark mb-1">
-            <span className="font-semibold">E-mail:</span> {userInfo.Email}
-          </p>
-          <p className="text-base font-medium text-gray-dark">
-            <span className="font-semibold">ID:</span> {userInfo.Id}
+  if (!isAuth || loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">
+            {!isAuth ? "Verificando autenticação..." : "Carregando dados financeiros..."}
           </p>
         </div>
       </div>
-    </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Ops! Algo deu errado</h2>
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Tentar Novamente
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen bg-gray-50">
+      <SidePannel />
+
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-6">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Dashboard Financeiro
+            </h1>
+            <p className="text-gray-600">
+              Bem-vindo, {userInfo.UserName}! Aqui está sua visão geral financeira.
+            </p>
+          </div>
+
+          {/* Cards Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+            {/* Card de Balanço Financeiro */}
+            <div className="lg:col-span-1">
+              <FinancialBalanceCard />
+            </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
   );
 }
