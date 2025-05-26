@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DespesaDto } from '@/Interfaces/Despesa/DespesaDto';
-import { Target, Calendar, TrendingUp, CheckCircle, Edit2, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface DespesaCardProps {
   despesa: DespesaDto;
@@ -63,8 +63,18 @@ const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCa
     }
   };
 
+  const getAtivoColor = () => {
+    return despesa.ativo
+      ? 'bg-green-100 text-green-700'
+      : 'bg-gray-300 text-gray-700';
+  };
+
   return (
-    <div className="flex justify-between rounded-2xl items-center py-3 border-b last:border-b-0  hover:shadow-xl transition-all duration-300 p-6 border border-gray-100"> 
+    <div
+      className={`flex justify-between rounded-2xl items-center py-3 border-b last:border-b-0 hover:shadow-xl transition-all duration-300 p-6 border border-gray-100 ${
+        despesa.ativo ? '' : 'opacity-60 grayscale'
+      }`}
+    >
       <div className="flex items-start space-x-3">
         <div className="w-10 h-10 flex items-center justify-center bg-red-100 text-red-600 rounded-full font-bold text-lg">
           -
@@ -82,6 +92,9 @@ const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCa
             <span className={`px-2 py-0.5 rounded-full ${getPrioridadeColor()}`}>
               {despesa.prioridade || 'Média'}
             </span>
+            <span className={`px-2 py-0.5 rounded-full ${getAtivoColor()}`}>
+              {despesa.ativo ? 'Ativo' : 'Inativo'}
+            </span>
           </div>
         </div>
       </div>
@@ -92,10 +105,14 @@ const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCa
           className="p-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors"
           aria-label="Editar despesa"
           title="Editar despesa"
-          
         >
           <svg className="w-4 h-4 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+            />
           </svg>
         </button>
         <button
@@ -105,11 +122,11 @@ const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCa
           aria-label="Excluir despesa"
           title="Excluir despesa"
         >
-           {isLoading ? (
-              <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-            ) : (
-              <X className="w-4 h-4 cursor-pointer" />
-            )}
+          {isLoading ? (
+            <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+          ) : (
+            <X className="w-4 h-4 cursor-pointer" />
+          )}
         </button>
       </div>
     </div>

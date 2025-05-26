@@ -8,7 +8,7 @@ interface Props {
   data: any[];
 }
 
-const cores = ['#221DAF', '#5A55D5', '#0AD611', '#EF0707', '#FFBB28', '#FF8042', '#636363', '#DDDDDD'];
+const cores = ['#221DAF', '#5A55D5', '#0AD611', '#EF0707', '#FFBB28', '#FF8042', '#636363', '#DDDDDD', '#800080'];
 
 export default function GraficoDespesasPorTipo({ data }: Props) {
   const [expandido, setExpandido] = useState(false);
@@ -57,7 +57,7 @@ export default function GraficoDespesasPorTipo({ data }: Props) {
     >
       <button
         onClick={() => setExpandido(!expandido)}
-        className="absolute top-4 right-4 p-1 hover:opacity-80 transition-opacity"
+        className="absolute top-4 right-4 p-1 hover:opacity-80 transition-opacity cursor-pointer"
       >
         <img
           src={expandido ? '/Icons/close.png' : '/Icons/open_in_full.png'}

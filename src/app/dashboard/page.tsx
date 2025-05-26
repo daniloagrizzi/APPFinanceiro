@@ -8,6 +8,7 @@ import { authService } from "@/services/authService";
 import { dashboardService, BalancoFinanceiroDto, DespesasPorcentagemPorTipoDto } from "@/services/dashboardService";
 import SidePannel from "../components/SidePannel/SidePannel";
 import FinancialBalanceCard from '../components/Dashboard/FinancialBalanceCard';
+import MonthlyEvolutionCard from '../components/Dashboard/MonthlyEvolutionCard';
 
 export default function Dashboard() {
   const [isAuth, setIsAuth] = useState(false);
@@ -106,7 +107,10 @@ export default function Dashboard() {
             <div className="lg:col-span-1">
               <FinancialBalanceCard />
             </div>
-
+{/* Card de Evolução Mensal */}
+  <div className="lg:col-span-1">
+    <MonthlyEvolutionCard />
+  </div>
             </div>
           </div>
         </div>

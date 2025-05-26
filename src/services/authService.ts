@@ -22,6 +22,13 @@ interface AuthResponse {
   message: string;
 }
 
+ interface EditarUsuarioDto
+ {
+     Email : string;
+    UserName : string;
+     ImagemUrl : string;
+ }
+
 export const authService = {
   async login(data: LoginData): Promise<AuthResponse> {
     const response = await api.post('/Auth/login', data);
@@ -55,6 +62,11 @@ export const authService = {
     const response = await api.post('/Auth/reset-password', data);
     return response.data;
   },
+
+  async editarUsuario(data: EditarUsuarioDto) {
+  const response = await api.put('/Auth/editar-usuario', data);
+  return response.data;
+},
 
   logout() {
 

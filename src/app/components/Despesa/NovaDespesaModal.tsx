@@ -28,6 +28,7 @@ export default function NovaDespesaModal({
   const [recorrente, setRecorrente] = useState(false);
   const [frequenciaRecorrencia, setFrequenciaRecorrencia] = useState('');
   const [prioridade, setPrioridade] = useState('Média');
+ const [ativo, setAtivo] = useState(true);
 
   useEffect(() => {
     if (despesaEdicao) {
@@ -37,6 +38,7 @@ export default function NovaDespesaModal({
       setRecorrente(despesaEdicao.recorrente);
       setFrequenciaRecorrencia(despesaEdicao.frequenciaRecorrencia || '');
       setPrioridade(despesaEdicao.prioridade || 'Média');
+      setAtivo(despesaEdicao.ativo);
     } else {
       setDescricao('');
       setValor(0);
@@ -44,6 +46,7 @@ export default function NovaDespesaModal({
       setRecorrente(false);
       setFrequenciaRecorrencia('');
       setPrioridade('Média');
+       setAtivo(true);
     }
   }, [despesaEdicao]);
 
@@ -74,6 +77,7 @@ export default function NovaDespesaModal({
         recorrente,
         frequenciaRecorrencia: recorrente ? frequenciaRecorrencia : '',
         prioridade,
+        ativo,
       };
 
       const despesaSalva = despesaEdicao
@@ -177,6 +181,19 @@ export default function NovaDespesaModal({
     </select>
   </div>
 )}
+
+ <div className="mb-4 flex items-center gap-2">
+  <input
+    type="checkbox"
+    id="ativo"
+    checked={ativo} 
+    onChange={(e) => setAtivo(e.target.checked)}
+  />
+  <label htmlFor="ativo" className="text-sm text-gray-700">
+    Despesa ativa?
+  </label>
+</div>
+
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}

@@ -125,7 +125,7 @@ const FinancialBalanceCard: React.FC = () => {
           <DollarSign className="w-8 h-8 text-blue-600" />
           <button
             onClick={handleRefresh}
-            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
             title="Atualizar dados"
           >
             <RefreshCw className="w-4 h-4" />

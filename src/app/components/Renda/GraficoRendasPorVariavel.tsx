@@ -62,7 +62,7 @@ export default function GraficoRendasPorVariavel({ data }: Props) {
     >
       <button
         onClick={() => setExpandido(!expandido)}
-        className="absolute top-4 right-4 p-1 hover:opacity-80 transition-opacity"
+        className="absolute top-4 right-4 p-1 hover:opacity-80 transition-opacity cursor-pointer"
       >
         <img
           src={expandido ? '/Icons/close.png' : '/Icons/open_in_full.png'}

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@nivo/bar": "^0.99.0",
     "@nivo/pie": "^0.98.0",
     "@tailwindcss/cli": "^4.1.4",
     "autoprefixer": "^10.4.21",

@@ -29,6 +29,13 @@ export interface BalancoFinanceiroDto {
   porcentagemDespesasSobreRenda: number;
 }
 
+export interface RelatorioMensalDto {
+  ano: number;
+  mes: number;
+  totalRenda: number;
+  totalDespesas: number;
+  saldo: number;
+}
 export const dashboardService = {
   async buscarPorcentagemDeDespesas(): Promise<DespesasPorcentagemPorTipoDto> {
     const token = localStorage.getItem('accessToken');
@@ -82,6 +89,16 @@ export const dashboardService = {
       console.error('[dashboardService] Erro ao buscar porcentagens:', error);
       throw error;
     }
+  },
+   async  gerarRelatoriosMensais(): Promise<RelatorioMensalDto> {
+    const token = localStorage.getItem('accessToken');
+    const response = await api.get('/DashBoard/GerarRelatoriosMensais', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    console.log('Resposta da API dashboard:', response.data);
+    return response.data;
   },
 
   async buscarPorcentagemDeRendas(): Promise<RendasPorcentagemPorVariavelDto> {

@@ -7,5 +7,6 @@ export interface DespesaDto {
     tipoDespesaId: number;
     usuarioId: string;
     prioridade: string;
+    ativo : boolean;
 
 }
