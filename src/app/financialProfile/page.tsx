@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/services/authService";
 import SidePannel from "../components/SidePannel/SidePannel";
+import BigButton from "../components/buttons/BigButton";
+import Image from 'next/image'
 
 export default function Dashboard() {
   const [isAuth, setIsAuth] = useState(false);
@@ -13,6 +15,7 @@ export default function Dashboard() {
   });
   const router = useRouter();
 
+
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
@@ -20,6 +23,7 @@ export default function Dashboard() {
       router.push("/login");
       return;
     }
+    
 
     const fetchUserInfo = async () => {
       try {
@@ -42,15 +46,19 @@ export default function Dashboard() {
 
   if (!isAuth) return null;
 
+ 
+
   return (
     <div className="flex h-screen">
-      <SidePannel></SidePannel> {/* Lado Esquerdo (Perfil do Usuário) */}
+      <SidePannel />
+      
       <div className="w-full flex items-center justify-center bg-white px-8">
-        
-        <div className="w-full h-[90%] max-w-md text-center border-8">{/* Login Case */}
+        {/* card case */}
+        <div className="flex flex-col justify-center w-full max-w-md h-[90vh] text-center shadow-2xl rounded-2xl overflow-hidden">
           
-          <div className="flex flex-col border-b-2">{/* user info */}
-            <div className="w-32 h-32 mx-auto rounded-full overflow-hidden shadow-md mb-6 mt-6">
+          {/* user infos */}
+          <div className="flex flex-col p-6">
+            <div className="w-32 h-32 mx-auto rounded-full overflow-hidden shadow-md mb-6">
               <img
                 src="/perfil.jpg"
                 alt="Perfil"
@@ -64,15 +72,68 @@ export default function Dashboard() {
             <p className="text-base font-medium text-gray-dark mb-1">
               <span className="font-semibold">E-mail:</span> {userInfo.Email}
             </p>
-            <p className="text-base font-medium text-gray-dark">
-              <span className="font-semibold">ID:</span> {userInfo.Id}
-            </p>
-          </div>  {/* user info */}
-          <div>{/* user updates */}
-            
-
-
           </div>
+          
+          {/* user info form */}
+          <div className=" overflow-y-auto px-6 pb-1 mt-3">
+            <form className="flex flex-col gap-4">
+              <div>
+                <label htmlFor="username" className="block mb-2 font-semibold text-[#221DAF]">
+                  Nome de usuário
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
+                  placeholder="Digite seu nome de usuário"
+                  required
+                  value={userInfo.UserName}
+                  onChange={(e) => setUserInfo({ ...userInfo, UserName: e.target.value })}
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="email" className="block mb-2 font-semibold text-[#221DAF]">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
+                  placeholder="Digite seu e-mail"
+                  required
+                  value={userInfo.Email}
+                  onChange={(e) => setUserInfo({ ...userInfo, Email: e.target.value })}
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="password" className="block mb-2 font-semibold text-[#221DAF]">
+                  Senha
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
+                  placeholder="Crie uma senha"
+                  required
+                />
+              </div>
+              
+              <div className="mt-4 mb-6">
+                <BigButton text='Atualizar' />
+              </div>
+            </form>
+          </div>
+          <div className="flex justify-center">
+          <Image src="/wo-money-black-big.png"
+      width={100}
+      height={100}
+      alt="Picture of the author"></Image>
+      </div>
         </div>
       </div>
     </div>
