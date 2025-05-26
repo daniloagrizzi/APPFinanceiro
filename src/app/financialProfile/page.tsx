@@ -66,11 +66,11 @@ export default function Dashboard() {
               />
             </div>
             <h1 className="text-2xl font-semibold text-dark-purple mb-2">
-              Bem-vindo,{" "}
+              Olá{" "}
               <span className="font-extrabold">{userInfo.UserName}</span>!
             </h1>
             <p className="text-base font-medium text-gray-dark mb-1">
-              <span className="font-semibold">E-mail:</span> {userInfo.Email}
+              <span className="font-semibold">Seu e-mail:</span> {userInfo.Email}
             </p>
           </div>
           
@@ -129,7 +129,7 @@ export default function Dashboard() {
             </form>
           </div>
           <div className="flex justify-center">
-          <Image src="/wo-money-black-big.png"
+          <Image src="/wo-money-blue-big.png"
       width={100}
       height={100}
       alt="Picture of the author"></Image>
