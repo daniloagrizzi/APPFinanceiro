@@ -96,7 +96,7 @@ export default function GraficoEvolucaoMensal({ data }: Props) {
         
         <button
           onClick={() => setExpandido(!expandido)}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
           title={expandido ? 'Minimizar' : 'Expandir'}
         >
           {expandido ? 

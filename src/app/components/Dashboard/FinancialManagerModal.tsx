@@ -78,7 +78,6 @@ const FinancialManagerModal = ({ isOpen, onClose }: FinancialManagerModalProps) 
   if (!isOpen) return null;
 
   const totalCortesSugeridos = data?.sugestaoDeCorteDespesa.reduce((total, despesa) => total + despesa.valor, 0) || 0;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40">
       <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full mx-4 max-h-[90vh] overflow-hidden">
@@ -177,6 +176,22 @@ const FinancialManagerModal = ({ isOpen, onClose }: FinancialManagerModalProps) 
                 </div>
               )}
 
+             {/* Economia Potencial de cortes */}
+              {totalCortesSugeridos > 0 && (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-bold text-green-800 mb-2">💰 Economia potencial de cortes</h3>
+                      <p className="text-green-700">
+                        Seguindo nossas sugestões, você pode economizar até{' '}
+                        <span className="font-bold text-2xl">{formatCurrency(totalCortesSugeridos)}</span> por mês com esses cortes
+                      </p>
+                    </div>
+                    <Target className="w-12 h-12 text-green-600" />
+                  </div>
+                </div>
+              )}
+
               {/* Resumo Final */}
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
                 <div className="flex items-start space-x-4">
@@ -186,27 +201,12 @@ const FinancialManagerModal = ({ isOpen, onClose }: FinancialManagerModalProps) 
                     <ul className="text-blue-700 space-y-1 text-sm">
                       <li>• {data.sugestaoDeCorteDespesa?.length || 0} despesas identificadas para otimização</li>
                       <li>• {data.sugestaoReducaoTipoDeDespesa?.length || 0} categorias com potencial de redução</li>
-                      <li>• Economia total estimada: {formatCurrency(totalCortesSugeridos)}/mês</li>
-                      <li>• Economia anual projetada: {formatCurrency(totalCortesSugeridos * 12)}</li>
+                      <li>• Economia total estimada: {formatCurrency(data?.montanteTotal)}/mês</li>
+                      <li>• Economia anual projetada: {formatCurrency(data?.montanteTotal * 12)}</li>
                     </ul>
                   </div>
                 </div>
               </div>
-             {/* Economia Potencial */}
-              {totalCortesSugeridos > 0 && (
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-lg font-bold text-green-800 mb-2">💰 Economia Potencial</h3>
-                      <p className="text-green-700">
-                        Seguindo nossas sugestões, você pode economizar até{' '}
-                        <span className="font-bold text-2xl">{formatCurrency(totalCortesSugeridos)}</span> por mês
-                      </p>
-                    </div>
-                    <Target className="w-12 h-12 text-green-600" />
-                  </div>
-                </div>
-              )}
 
               {/* Informações dos Montantes */}
               <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">

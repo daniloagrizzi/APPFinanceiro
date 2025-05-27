@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, Search, Filter } from "lucide-react";
 
 import { authService } from "@/services/authService";
 import { despesaService } from "@/services/despesaService";
@@ -28,6 +28,8 @@ export default function Despesas() {
   const [error, setError] = useState<string | null>(null);
   const [graficoData, setGraficoData] = useState<TipoDespesaComPorcentagemDto[]>([]);
   const [filtroPrioridade, setFiltroPrioridade] = useState<string>("");
+  const [filtroTipo, setFiltroTipo] = useState<number | null>(null);
+  const [pesquisa, setPesquisa] = useState<string>("");
 
   const router = useRouter();
 
@@ -165,60 +167,179 @@ export default function Despesas() {
     });
     await atualizarDadosGrafico();
   };
-  
 
-  const despesasFiltradas = filtroPrioridade
-    ? despesas.filter((d) => d.prioridade === filtroPrioridade)
-    : despesas;
+  // Função para filtrar despesas baseado na pesquisa e filtros
+  const despesasFiltradas = despesas.filter(despesa => {
+    // Filtro por prioridade
+    const passaFiltroPrioridade = !filtroPrioridade || despesa.prioridade === filtroPrioridade;
+    
+    // Filtro por tipo
+    const passaFiltroTipo = filtroTipo === null || despesa.tipoDespesaId === filtroTipo;
+    
+    // Filtro por pesquisa (nome/descrição)
+    const passaFiltroPesquisa = pesquisa === "" || 
+      despesa.descricao.toLowerCase().includes(pesquisa.toLowerCase()) ||
+      (despesa.nome && despesa.nome.toLowerCase().includes(pesquisa.toLowerCase()));
+    
+    return passaFiltroPrioridade && passaFiltroTipo && passaFiltroPesquisa;
+  });
+
+  const limparFiltros = () => {
+    setPesquisa("");
+    setFiltroPrioridade("");
+    setFiltroTipo(null);
+  };
+
+  const temFiltrosAtivos = pesquisa || filtroPrioridade || filtroTipo !== null;
 
   return (
     <div className="flex h-screen relative">
       <SidePannel />
 
-      <main className="w-full p-6 overflow-auto bg-white z-10">
-      <div className="max-w-4xl mx-auto">
-              {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-dark-purple">Minhas Despesas</h1>
-          <button 
-            onClick={handleAddNew}
-            className="flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors cursor-pointer"
-            aria-label="Adicionar nova despesa"
-            title="Adicionar renda"
-          >
-            <Plus size={20} />
-          </button>
-        </div>
-
-          <div className="mb-4 max-w-xs">
-            <label htmlFor="filtroPrioridade" className="block text-sm font-medium text-gray-700 mb-1">
-              Filtrar por prioridade
-            </label>
-            <select
-              id="filtroPrioridade"
-              className="border border-gray-300 rounded-md p-2 text-gray-900 w-full"
-              value={filtroPrioridade}
-              onChange={(e) => setFiltroPrioridade(e.target.value)}
+      <main className="w-full p-6 overflow-auto bg-gray-50 z-10">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900">Minhas Despesas</h1>
+            <button 
+              onClick={handleAddNew}
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
+              aria-label="Adicionar nova despesa"
             >
-              <option value="">Todas as prioridades</option>
-              <option value="Alta">Alta</option>
-              <option value="Média">Média</option>
-              <option value="Baixa">Baixa</option>
-            </select>
+              <Plus size={20} />
+              <span className="hidden sm:inline cursor-pointer">Adicionar Despesa</span>
+            </button>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-6">
+          {/* Barra de Filtros */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+              
+              {/* Barra de Pesquisa */}
+              <div className="lg:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Pesquisar despesas
+                </label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <input
+                    type="text"
+                    placeholder="Digite o nome ou descrição da despesa..."
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                    value={pesquisa}
+                    onChange={(e) => setPesquisa(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Filtro por Prioridade */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Prioridade
+                </label>
+                <div className="relative">
+                  <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <select
+                    className="w-full pl-10 pr-8 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none bg-white cursor-pointer"
+                    value={filtroPrioridade}
+                    onChange={(e) => setFiltroPrioridade(e.target.value)}
+                  >
+                    <option value="">Todas</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Média">Média</option>
+                    <option value="Baixa">Baixa</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Filtro por Tipo */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tipo de despesa
+                </label>
+                <div className="relative">
+                  <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <select
+                    className="w-full pl-10 pr-8 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none bg-white cursor-pointer"
+                    value={filtroTipo || ""}
+                    onChange={(e) => setFiltroTipo(e.target.value ? Number(e.target.value) : null)}
+                  >
+                    <option value="">Todos os tipos</option>
+                    {tiposDespesa.map((tipo) => (
+                      <option key={tipo.id} value={tipo.id}>
+                        {tipo.descricao}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Botão Limpar Filtros */}
+            {temFiltrosAtivos && (
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <button
+                  onClick={limparFiltros}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Limpar Filtros
+                </button>
+              </div>
+            )}
+
+            {/* Contador de resultados */}
+            <div className={`${temFiltrosAtivos ? 'mt-2' : 'mt-4'} ${temFiltrosAtivos ? '' : 'pt-4 border-t border-gray-100'}`}>
+              <p className="text-sm text-gray-600">
+                {despesasFiltradas.length === 0 
+                  ? "Nenhuma despesa encontrada" 
+                  : `${despesasFiltradas.length} ${despesasFiltradas.length === 1 ? 'despesa encontrada' : 'despesas encontradas'}`
+                }
+                {despesas.length > 0 && ` de ${despesas.length} total`}
+              </p>
+            </div>
+          </div>
+
+          {/* Conteúdo */}
+          <div className="flex flex-col lg:flex-row gap-6">
+            {/* Lista de Despesas */}
             <div className="flex-1">
-              {error && <p className="text-red-600 mb-4">{error}</p>}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                  <p className="text-red-800">{error}</p>
+                </div>
+              )}
 
               {isLoading ? (
-                <p>Carregando despesas...</p>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                  <p className="text-gray-600">Carregando despesas...</p>
+                </div>
               ) : despesasFiltradas.length === 0 ? (
-                <p className="text-gray-600">
-                  {filtroPrioridade
-                    ? `Nenhuma despesa encontrada com prioridade ${filtroPrioridade}.`
-                    : "Nenhuma despesa encontrada."}
-                </p>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+                  <div className="text-gray-400 mb-4">
+                    <Search size={48} className="mx-auto" />
+                  </div>
+                  <p className="text-gray-600 text-lg mb-2">
+                    {temFiltrosAtivos
+                      ? 'Nenhuma despesa encontrada com os filtros aplicados'
+                      : 'Nenhuma despesa cadastrada'}
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    {temFiltrosAtivos
+                      ? 'Tente ajustar os filtros ou limpar a pesquisa'
+                      : 'Comece adicionando sua primeira despesa'}
+                  </p>
+                </div>
               ) : (
                 <section className="space-y-4">
                   {despesasFiltradas.map((despesa) => (
@@ -234,8 +355,9 @@ export default function Despesas() {
               )}
             </div>
 
-            <div className="md:w-1/2">
-              <GraficoDespesasPorTipo data={graficoData} />
+            {/* Gráfico de despesas por tipo */}
+            <div className="lg:w-1/2">
+                <GraficoDespesasPorTipo data={graficoData} />
             </div>
           </div>
         </div>

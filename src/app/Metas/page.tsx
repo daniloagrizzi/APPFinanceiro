@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import { useRouter } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 
 import { authService } from "@/services/authService";
 import { metaService } from "@/services/metaService";
@@ -22,6 +22,7 @@ export default function Metas() {
   const [metaToEdit, setMetaToEdit] = useState<MetaDto | null>(null);
   const [confirmDeleteModalOpen, setConfirmDeleteModalOpen] = useState(false);
   const [metaToDelete, setMetaToDelete] = useState<MetaDto | null>(null);
+  const [pesquisa, setPesquisa] = useState<string>("");
 
   const router = useRouter();
 
@@ -108,38 +109,111 @@ export default function Metas() {
     }
   };
 
+  const metasFiltradas = metas.filter(meta => {
+    return pesquisa === "" || meta.nome.toLowerCase().includes(pesquisa.toLowerCase());
+  });
+
+  const limparPesquisa = () => {
+    setPesquisa("");
+  };
+
   if (!isAuth) return null;
 
   return (
     <div className="flex h-screen">
       <SidePannel />
 
-      <div className="w-full p-6 overflow-auto bg-white">
+      <div className="w-full p-6 overflow-auto bg-gray-50">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-2xl font-bold text-dark-purple">Minhas Metas</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Minhas Metas</h1>
             <button
               onClick={handleAddNew}
-              className="flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
               aria-label="Adicionar meta"
-              title="Adicionar meta"
             >
-              <Plus className="cursor-pointer" size={20} />
+              <Plus size={20} />
+              <span className="hidden sm:inline cursor-pointer">Adicionar Meta</span>
             </button>
+          </div>
+
+          {/* Barra de Pesquisa */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+              
+              {/* Campo de Pesquisa */}
+              <div className="flex-1 w-full">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Pesquisar metas
+                </label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                  <input
+                    type="text"
+                    placeholder="Digite o nome da meta..."
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                    value={pesquisa}
+                    onChange={(e) => setPesquisa(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Botão Limpar Pesquisa */}
+              {pesquisa && (
+                <button
+                  onClick={limparPesquisa}
+                  className="px-4 py-3 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
+                >
+                  Limpar
+                </button>
+              )}
+            </div>
+
+            {/* Contador de resultados */}
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <p className="text-sm text-gray-600">
+                {metasFiltradas.length === 0 
+                  ? "Nenhuma meta encontrada" 
+                  : `${metasFiltradas.length} ${metasFiltradas.length === 1 ? 'meta encontrada' : 'metas encontradas'}`
+                }
+                {metas.length > 0 && ` de ${metas.length} total`}
+              </p>
+            </div>
           </div>
 
           {/* Conteúdo */}
           <div className="flex flex-col gap-6">
-            {error && <p className="text-red-600 mb-4">{error}</p>}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <p className="text-red-800">{error}</p>
+              </div>
+            )}
 
             {isLoading ? (
-              <p>Carregando metas...</p>
-            ) : metas.length === 0 ? (
-              <p className="text-gray-600">Nenhuma meta encontrada.</p>
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Carregando metas...</p>
+              </div>
+            ) : metasFiltradas.length === 0 ? (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+                <div className="text-gray-400 mb-4">
+                  <Search size={48} className="mx-auto" />
+                </div>
+                <p className="text-gray-600 text-lg mb-2">
+                  {pesquisa
+                    ? 'Nenhuma meta encontrada com a pesquisa aplicada'
+                    : 'Nenhuma meta cadastrada'}
+                </p>
+                <p className="text-gray-500 text-sm">
+                  {pesquisa
+                    ? 'Tente ajustar a pesquisa ou limpar o campo'
+                    : 'Comece adicionando sua primeira meta'}
+                </p>
+              </div>
             ) : (
               <div className="space-y-4">
-                {metas.map((meta) => (
+                {metasFiltradas.map((meta) => (
                   <MetaCard
                     key={meta.id}
                     meta={meta}
