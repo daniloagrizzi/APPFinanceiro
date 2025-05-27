@@ -71,7 +71,7 @@ export default function ForgotPasswordPage() {
               className="w-full"
             />
           </form>
-          <BigButton text='Voltar ao login' className='' variant='secundary' onClick={() => router.push('/login')} />
+          <BigButton text='Voltar ao login' className='cursor-pointer' variant='secundary' onClick={() => router.push('/login')} />
         </div>
       </div>
 

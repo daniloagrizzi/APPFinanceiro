@@ -78,8 +78,8 @@ export default function LoginPage() {
               <a href ='#' onClick={() => router.push('/forgotPassword')} className="block text-small font-semibold text-dark-purple mt-2">Esqueceu a senha?</a>
             </div>
 
-            <BigButton text='Entrar' className='' variant='default' type='submit' />
-            <BigButton text='Cadastre-se' className='' variant='secundary' onClick={() => router.push('/register')} />
+            <BigButton text='Entrar' className='cursor-pointer' variant='default' type='submit' />
+            <BigButton text='Cadastre-se' className='cursor-pointer' variant='secundary' onClick={() => router.push('/register')} />
           </form>
         </div>
       </div>
