@@ -180,13 +180,13 @@ export default function Despesas() {
               {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-dark-purple">Minhas Despesas</h1>
-          <button
+          <button 
             onClick={handleAddNew}
-            className="flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors"
+            className="flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors cursor-pointer"
             aria-label="Adicionar nova despesa"
             title="Adicionar renda"
           >
-            <Plus className="cursor-pointer" size={20} />
+            <Plus size={20} />
           </button>
         </div>
 
