@@ -19,7 +19,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isManagerModalOpen, setIsManagerModalOpen] = useState(false);
-  const [userScore, setUserScore] = useState(860); // Score simulado
   const router = useRouter();
 
   useEffect(() => {

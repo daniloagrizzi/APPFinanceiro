@@ -43,7 +43,14 @@ export interface SugerirCortesDto {
   montanteTotal: number;
   sugestaoDeCorteDespesa: SugestaoDeCorteDespesaDto[];
   sugestaoReducaoTipoDeDespesa: SugestaoReducaoTipoDeDespesaDto[];
+  previsaoMetasDto: PrevisaoMetasDto[];
 }
+export interface PrevisaoMetasDto {
+  nome: string;
+  valorRestante: number;
+  mesesParaBaterMeta: number;
+}
+
 export interface SugestaoReducaoTipoDeDespesaDto {
   tipoDespesaDescricao: string;
   valorTotalASerReduzido: number;

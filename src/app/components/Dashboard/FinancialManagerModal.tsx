@@ -78,6 +78,7 @@ const FinancialManagerModal = ({ isOpen, onClose }: FinancialManagerModalProps) 
   if (!isOpen) return null;
 
   const totalCortesSugeridos = data?.sugestaoDeCorteDespesa.reduce((total, despesa) => total + despesa.valor, 0) || 0;
+  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/40">
       <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full mx-4 max-h-[90vh] overflow-hidden">
@@ -192,6 +193,46 @@ const FinancialManagerModal = ({ isOpen, onClose }: FinancialManagerModalProps) 
                 </div>
               )}
 
+              {/* Previsão de Metas */}
+              {data.previsaoMetas && data.previsaoMetas.length > 0 && (
+                <div className="bg-purple-50 border border-purple-200 rounded-xl p-6">
+                  <h4 className="font-bold text-purple-800 mb-4 flex items-center">
+                    <Target className="w-6 h-6 mr-2" />
+                    🎯 Acelere suas Metas com os Cortes Sugeridos
+                  </h4>
+                  <p className="text-purple-700 mb-4 text-sm">
+                    Com a economia dos cortes sugeridos, você pode bater suas metas mais rapidamente:
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {data.previsaoMetas.map((meta, index) => (
+                      <div key={index} className="bg-white border border-purple-200 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h5 className="font-semibold text-gray-800">{meta.nome}</h5>
+                          <div className="w-8 h-8 bg-purple-200 text-purple-700 rounded-full flex items-center justify-center font-bold text-sm">
+                            🎯
+                          </div>
+                        </div>
+                        <div className="space-y-3">
+                          <div className="text-center">
+                            <p className="text-sm text-gray-600">Valor restante</p>
+                            <p className="font-bold text-lg text-gray-800">{formatCurrency(meta.valorRestante)}</p>
+                          </div>
+                          <div className="text-center bg-purple-100 p-3 rounded-lg">
+                            <p className="text-sm text-purple-700 mb-1">Pode ser conquistada em:</p>
+                            <p className="font-bold text-2xl text-purple-800">
+                              {meta.mesesParaBaterMeta} {meta.mesesParaBaterMeta === 1 ? 'mês' : 'meses'}
+                            </p>
+                            <p className="text-xs text-purple-600 mt-1">
+                              ⚡ Usando apenas a economia dos cortes
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Resumo Final */}
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
                 <div className="flex items-start space-x-4">
@@ -201,6 +242,7 @@ const FinancialManagerModal = ({ isOpen, onClose }: FinancialManagerModalProps) 
                     <ul className="text-blue-700 space-y-1 text-sm">
                       <li>• {data.sugestaoDeCorteDespesa?.length || 0} despesas identificadas para otimização</li>
                       <li>• {data.sugestaoReducaoTipoDeDespesa?.length || 0} categorias com potencial de redução</li>
+                      <li>• {data.previsaoMetas?.length || 0} metas podem ser aceleradas</li>
                       <li>• Economia total estimada: {formatCurrency(data?.montanteTotal)}/mês</li>
                       <li>• Economia anual projetada: {formatCurrency(data?.montanteTotal * 12)}</li>
                     </ul>
