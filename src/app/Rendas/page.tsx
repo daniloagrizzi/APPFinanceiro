@@ -50,7 +50,7 @@ export default function Rendas() {
     verificarAutenticacao();
   }, [router]);
 
- const carregarDados = async () => {
+const carregarDados = async () => {
   setIsLoading(true);
   setError(null);
 
@@ -61,10 +61,21 @@ export default function Rendas() {
 
     // Carrega dados do gráfico
     console.log("[Rendas] Iniciando carregamento dos dados do gráfico");
-    const graficoResponse = await dashboardService.buscarPorcentagemDeRendas();
-    console.log("[Rendas] Resposta completa do dashboard:", graficoResponse);
     
-    setDadosGrafico(processChartData(graficoResponse));
+    try {
+      const graficoResponse = await dashboardService.buscarPorcentagemDeRendas();
+      console.log("[Rendas] Resposta completa do dashboard:", graficoResponse);
+      
+      const dadosProcessados = processChartData(graficoResponse);
+      console.log("[Rendas] Dados processados:", dadosProcessados);
+      
+      setDadosGrafico(dadosProcessados);
+    } catch (graficoError) {
+      console.error("[Rendas] Erro ao carregar dados do gráfico:", graficoError);
+      // Se falhar ao carregar dados do dashboard, criar dados baseados nas rendas existentes
+      const dadosAlternativos = criarDadosGraficoAlternativos(rendasResponse);
+      setDadosGrafico(dadosAlternativos);
+    }
     
   } catch (error) {
     console.error("Erro ao carregar dados:", error);
@@ -75,7 +86,53 @@ export default function Rendas() {
   }
 };
 
-// Helper function to process chart data
+// Função alternativa para criar dados do gráfico baseado nas rendas existentes
+const criarDadosGraficoAlternativos = (rendas: RendaDto[]): any[] => {
+  if (!rendas || rendas.length === 0) {
+    return [];
+  }
+
+  // Agrupar rendas por tipo (variável/fixa)
+  const rendasFixas = rendas.filter(r => !r.variavel);
+  const rendasVariaveis = rendas.filter(r => r.variavel);
+
+  const totalFixas = rendasFixas.reduce((sum, r) => sum + r.valor, 0);
+  const totalVariaveis = rendasVariaveis.reduce((sum, r) => sum + r.valor, 0);
+  const totalGeral = totalFixas + totalVariaveis;
+
+  if (totalGeral === 0) {
+    return [];
+  }
+
+  const dados = [];
+
+  if (totalFixas > 0) {
+    dados.push({
+      variavel: false,
+      Variavel: false,
+      ValorTotal: totalFixas,
+      valorTotal: totalFixas,
+      Porcentagem: (totalFixas / totalGeral) * 100,
+      porcentagem: (totalFixas / totalGeral) * 100
+    });
+  }
+
+  if (totalVariaveis > 0) {
+    dados.push({
+      variavel: true,
+      Variavel: true,
+      ValorTotal: totalVariaveis,
+      valorTotal: totalVariaveis,
+      Porcentagem: (totalVariaveis / totalGeral) * 100,
+      porcentagem: (totalVariaveis / totalGeral) * 100
+    });
+  }
+
+  console.log("[Rendas] Dados alternativos criados:", dados);
+  return dados;
+};
+
+// Função melhorada de processamento de dados do gráfico
 const processChartData = (response: any): any[] => {
   if (!response) {
     console.warn("[Rendas] Resposta nula ou indefinida do dashboard");
@@ -86,18 +143,37 @@ const processChartData = (response: any): any[] => {
   console.log("[Rendas] Chaves do objeto:", Object.keys(response));
 
   // Helper function to format a single item
-  const formatItem = (item: any) => ({
-    ...item,
-    variavel: (item.Variavel || item.variavel) === true ? "Variável" : "Fixa"
-  });
+  const formatItem = (item: any) => {
+    const isVariavel = item.Variavel !== undefined ? item.Variavel : item.variavel;
+    return {
+      ...item,
+      variavel: isVariavel,
+      Variavel: isVariavel
+    };
+  };
 
   // Helper function to validate if an item has the expected structure
-  const hasValidStructure = (item: any): boolean => 
-    item && 
-    typeof item === 'object' && 
-    ('Variavel' in item || 'variavel' in item) && 
-    ('ValorTotal' in item || 'valorTotal' in item || 'valor' in item) && 
-    ('Porcentagem' in item || 'porcentagem' in item);
+  const hasValidStructure = (item: any): boolean => {
+    const hasVariavelField = 'Variavel' in item || 'variavel' in item;
+    const hasValueField = 'ValorTotal' in item || 'valorTotal' in item || 'valor' in item;
+    const hasPercentageField = 'Porcentagem' in item || 'porcentagem' in item;
+    
+    const isValid = item && 
+      typeof item === 'object' && 
+      hasVariavelField && 
+      hasValueField && 
+      hasPercentageField;
+      
+    console.log("[Rendas] Validação do item:", {
+      item,
+      hasVariavelField,
+      hasValueField,
+      hasPercentageField,
+      isValid
+    });
+    
+    return isValid;
+  };
 
   // Check for PascalCase format
   if (response.PorcentagensVariavel && Array.isArray(response.PorcentagensVariavel)) {
@@ -116,18 +192,35 @@ const processChartData = (response: any): any[] => {
     console.log("[Rendas] Resposta é um array");
     
     // Validate array structure
-    if (response.every(hasValidStructure)) {
+    if (response.length > 0 && response.every(hasValidStructure)) {
+      console.log("[Rendas] Array tem estrutura válida");
       return response.map(formatItem);
     }
     
-    // Return as-is if structure doesn't match expected format
-    return response;
+    // If array doesn't have expected structure, try to process anyway
+    console.log("[Rendas] Array não tem estrutura esperada, tentando processar mesmo assim");
+    return response.filter((item: any) => item && typeof item === 'object').map(formatItem);
   }
 
   // Check if it's a single object with the expected properties
   if (hasValidStructure(response)) {
     console.log("[Rendas] O objeto parece ser um único item de porcentagem");
     return [formatItem(response)];
+  }
+
+  // Try to extract any array-like property
+  const possibleArrayKeys = Object.keys(response).filter(key => 
+    Array.isArray(response[key])
+  );
+  
+  console.log("[Rendas] Chaves com arrays encontradas:", possibleArrayKeys);
+  
+  for (const key of possibleArrayKeys) {
+    const array = response[key];
+    if (array.length > 0) {
+      console.log(`[Rendas] Tentando usar array da chave '${key}':`, array);
+      return array.filter((item: any) => item && typeof item === 'object').map(formatItem);
+    }
   }
 
   // Fallback for unknown format
@@ -184,18 +277,17 @@ const processChartData = (response: any): any[] => {
     carregarDados();
   };
 
-  // Função para filtrar rendas baseado na pesquisa e filtro
-  const rendasFiltradas = rendas.filter(renda => {
-    // Filtro por tipo (variável/fixa)
-    const passaFiltroTipo = filtroVariavel === null || renda.variavel === filtroVariavel;
-    
-    // Filtro por pesquisa (nome/descrição)
-    const passaFiltroPesquisa = pesquisa === "" || 
-      renda.descricao.toLowerCase().includes(pesquisa.toLowerCase()) ||
-      (renda.nome && renda.nome.toLowerCase().includes(pesquisa.toLowerCase()));
-    
-    return passaFiltroTipo && passaFiltroPesquisa;
-  });
+ // Função para filtrar rendas baseado na pesquisa e filtro
+const rendasFiltradas = rendas.filter(renda => {
+  // Filtro por tipo (variável/fixa)
+  const passaFiltroTipo = filtroVariavel === null || renda.variavel === filtroVariavel;
+  
+  // Filtro por pesquisa (apenas descrição, já que nome não existe na interface)
+  const passaFiltroPesquisa = pesquisa === "" || 
+    renda.descricao.toLowerCase().includes(pesquisa.toLowerCase());
+  
+  return passaFiltroTipo && passaFiltroPesquisa;
+});
 
   const limparFiltros = () => {
     setPesquisa("");
