@@ -50,74 +50,90 @@ export default function Rendas() {
     verificarAutenticacao();
   }, [router]);
 
-  const carregarDados = async () => {
-    setIsLoading(true);
-    setError(null);
+ const carregarDados = async () => {
+  setIsLoading(true);
+  setError(null);
 
-    try {
-      // Carrega dados das rendas
-      const rendasResponse = await rendaService.listarPorUsuario();
-      setRendas(rendasResponse);
+  try {
+    // Carrega dados das rendas
+    const rendasResponse = await rendaService.listarPorUsuario();
+    setRendas(rendasResponse);
 
-      // Carrega dados do gráfico
-      console.log("[Rendas] Iniciando carregamento dos dados do gráfico");
-      const graficoResponse = await dashboardService.buscarPorcentagemDeRendas();
-      console.log("[Rendas] Resposta completa do dashboard:", graficoResponse);
-      
-      if (graficoResponse) {
-        console.log("[Rendas] Tipo da resposta:", typeof graficoResponse);
-        console.log("[Rendas] Chaves do objeto:", Object.keys(graficoResponse));
-        
-        // Verificar se temos o formato específico do backend
-        if (graficoResponse.porcentagensPorVariavel) {
-          console.log("[Rendas] Encontrado porcentagensPorVariavel");
-          // Tratar os dados para exibir Sim/Não em vez de true/false
-          const dadosFormatados = graficoResponse.porcentagensPorVariavel.map(item => ({
-            ...item,
-            // Converter booleano para texto mais amigável
-            variavel: item.variavel === true ? "Variável" : "Fixa"
-          }));
-          setDadosGrafico(dadosFormatados);
-        } 
-        // Checagem para outros formatos potenciais
-        else if (Array.isArray(graficoResponse)) {
-          console.log("[Rendas] Resposta é um array");
-          setDadosGrafico(graficoResponse);
-        } 
-        else if (graficoResponse.PorcentagensVariavel) {
-          console.log("[Rendas] Encontrado PorcentagensVariavel (PascalCase)");
-          setDadosGrafico(graficoResponse.PorcentagensVariavel);
-        } 
-        else if (graficoResponse.porcentagensVariavel) {
-          console.log("[Rendas] Encontrado porcentagensVariavel (camelCase)");
-          setDadosGrafico(graficoResponse.porcentagensVariavel);
-        } 
-        else {
-          console.log("[Rendas] Formato desconhecido, verificando outras propriedades");
-          // Se for um objeto único
-          const temPropriedadesDeVariavel = graficoResponse.Variavel !== undefined || 
-                                         graficoResponse.variavel !== undefined;
-          
-          if (temPropriedadesDeVariavel) {
-            console.log("[Rendas] O objeto parece ser um único item de porcentagem");
-            setDadosGrafico([graficoResponse]);
-          } else {
-            console.log("[Rendas] Formato desconhecido, não foi possível extrair dados para o gráfico");
-            setDadosGrafico([]);
-          }
-        }
-      } else {
-        console.warn("[Rendas] Resposta nula ou indefinida do dashboard");
-        setDadosGrafico([]);
-      }
-    } catch (error) {
-      console.error("Erro ao carregar dados:", error);
-      setError("Não foi possível carregar os dados. Por favor, tente novamente.");
-      setDadosGrafico([]);
-    } finally {
-      setIsLoading(false);
+    // Carrega dados do gráfico
+    console.log("[Rendas] Iniciando carregamento dos dados do gráfico");
+    const graficoResponse = await dashboardService.buscarPorcentagemDeRendas();
+    console.log("[Rendas] Resposta completa do dashboard:", graficoResponse);
+    
+    setDadosGrafico(processChartData(graficoResponse));
+    
+  } catch (error) {
+    console.error("Erro ao carregar dados:", error);
+    setError("Não foi possível carregar os dados. Por favor, tente novamente.");
+    setDadosGrafico([]);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+// Helper function to process chart data
+const processChartData = (response: any): any[] => {
+  if (!response) {
+    console.warn("[Rendas] Resposta nula ou indefinida do dashboard");
+    return [];
+  }
+
+  console.log("[Rendas] Tipo da resposta:", typeof response);
+  console.log("[Rendas] Chaves do objeto:", Object.keys(response));
+
+  // Helper function to format a single item
+  const formatItem = (item: any) => ({
+    ...item,
+    variavel: (item.Variavel || item.variavel) === true ? "Variável" : "Fixa"
+  });
+
+  // Helper function to validate if an item has the expected structure
+  const hasValidStructure = (item: any): boolean => 
+    item && 
+    typeof item === 'object' && 
+    ('Variavel' in item || 'variavel' in item) && 
+    ('ValorTotal' in item || 'valorTotal' in item || 'valor' in item) && 
+    ('Porcentagem' in item || 'porcentagem' in item);
+
+  // Check for PascalCase format
+  if (response.PorcentagensVariavel && Array.isArray(response.PorcentagensVariavel)) {
+    console.log("[Rendas] Encontrado PorcentagensVariavel (PascalCase)");
+    return response.PorcentagensVariavel.map(formatItem);
+  }
+
+  // Check for camelCase format
+  if (response.porcentagensVariavel && Array.isArray(response.porcentagensVariavel)) {
+    console.log("[Rendas] Encontrado porcentagensVariavel (camelCase)");
+    return response.porcentagensVariavel.map(formatItem);
+  }
+
+  // Check if response is directly an array
+  if (Array.isArray(response)) {
+    console.log("[Rendas] Resposta é um array");
+    
+    // Validate array structure
+    if (response.every(hasValidStructure)) {
+      return response.map(formatItem);
     }
-  };
+    
+    // Return as-is if structure doesn't match expected format
+    return response;
+  }
+
+  // Check if it's a single object with the expected properties
+  if (hasValidStructure(response)) {
+    console.log("[Rendas] O objeto parece ser um único item de porcentagem");
+    return [formatItem(response)];
+  }
+
+  // Fallback for unknown format
+  console.log("[Rendas] Formato desconhecido, não foi possível extrair dados para o gráfico");
+  return [];
+};
 
   const handleEdit = (renda: RendaDto) => {
     setRendaToEdit(renda);

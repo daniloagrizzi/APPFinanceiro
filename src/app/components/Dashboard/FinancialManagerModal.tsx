@@ -194,7 +194,7 @@ const FinancialManagerModal = ({ isOpen, onClose }: FinancialManagerModalProps) 
               )}
 
               {/* Previsão de Metas */}
-              {data.previsaoMetas && data.previsaoMetas.length > 0 && (
+              {data.previsaoMetasDto && data.previsaoMetasDto.length > 0 && (
                 <div className="bg-purple-50 border border-purple-200 rounded-xl p-6">
                   <h4 className="font-bold text-purple-800 mb-4 flex items-center">
                     <Target className="w-6 h-6 mr-2" />
@@ -204,7 +204,7 @@ const FinancialManagerModal = ({ isOpen, onClose }: FinancialManagerModalProps) 
                     Com a economia dos cortes sugeridos, você pode bater suas metas mais rapidamente:
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {data.previsaoMetas.map((meta, index) => (
+                    {data.previsaoMetasDto.map((meta, index) => (
                       <div key={index} className="bg-white border border-purple-200 rounded-lg p-4">
                         <div className="flex items-center justify-between mb-3">
                           <h5 className="font-semibold text-gray-800">{meta.nome}</h5>
@@ -242,7 +242,7 @@ const FinancialManagerModal = ({ isOpen, onClose }: FinancialManagerModalProps) 
                     <ul className="text-blue-700 space-y-1 text-sm">
                       <li>• {data.sugestaoDeCorteDespesa?.length || 0} despesas identificadas para otimização</li>
                       <li>• {data.sugestaoReducaoTipoDeDespesa?.length || 0} categorias com potencial de redução</li>
-                      <li>• {data.previsaoMetas?.length || 0} metas podem ser aceleradas</li>
+                      <li>• {data.previsaoMetasDto?.length || 0} metas podem ser aceleradas</li>
                       <li>• Economia total estimada: {formatCurrency(data?.montanteTotal)}/mês</li>
                       <li>• Economia anual projetada: {formatCurrency(data?.montanteTotal * 12)}</li>
                     </ul>

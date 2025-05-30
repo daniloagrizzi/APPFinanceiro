@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import BigButton from '../components/buttons/BigButton';
 import { authService } from '@/services/authService';
 
-export default function ResetPasswordPage() {
+// Separate component that uses useSearchParams
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -20,7 +21,7 @@ export default function ResetPasswordPage() {
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-        setError('As senhas não coincidem.');
+      setError('As senhas não coincidem.');
       return;
     }
 
@@ -41,42 +42,71 @@ export default function ResetPasswordPage() {
   };
 
   return (
+    <div className="w-full max-w-md">
+      <h1 className="text-h1 font-bold text-dark-purple mb-10">Wo! Money</h1>
+      <h2 className="text-2xl font-semibold text-dark-purple mb-6">Redefinir Senha</h2>
+      {message && <p className="text-green-600 mb-2">{message}</p>}
+      {error && <p className="text-red-600 mb-2">{error}</p>}
+      <form onSubmit={handleResetPassword}>
+        <div className="mb-6">
+          <label htmlFor="newPassword" className="block mb-2 font-semibold text-dark-purple">Nova Senha</label>
+          <input
+            type="password"
+            id="newPassword"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
+            placeholder="Digite sua nova senha"
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label htmlFor="confirmPassword" className="block mb-2 font-semibold text-dark-purple">Confirme a Nova Senha</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
+            placeholder="Repita sua nova senha"
+            required
+          />
+        </div>
+        <BigButton text="Redefinir Senha" className="" variant="default" type="submit" />
+      </form>
+    </div>
+  );
+}
+
+// Loading component for Suspense fallback
+function LoadingForm() {
+  return (
+    <div className="w-full max-w-md">
+      <h1 className="text-h1 font-bold text-dark-purple mb-10">Wo! Money</h1>
+      <h2 className="text-2xl font-semibold text-dark-purple mb-6">Redefinir Senha</h2>
+      <div className="animate-pulse">
+        <div className="mb-6">
+          <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+          <div className="h-12 bg-gray-200 rounded w-full"></div>
+        </div>
+        <div className="mb-6">
+          <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+          <div className="h-12 bg-gray-200 rounded w-full"></div>
+        </div>
+        <div className="h-12 bg-gray-200 rounded w-full"></div>
+      </div>
+    </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
     <div className="flex h-screen">
       {/* Lado Esquerdo (Formulário) */}
       <div className="w-full lg:w-[40%] flex items-center justify-center bg-white px-8">
-        <div className="w-full max-w-md">
-          <h1 className="text-h1 font-bold text-dark-purple mb-10">Wo! Money</h1>
-          <h2 className="text-2xl font-semibold text-dark-purple mb-6">Redefinir Senha</h2>
-          {message && <p className="text-green-600 mb-2">{message}</p>}
-          {error && <p className="text-red-600 mb-2">{error}</p>}
-          <form onSubmit={handleResetPassword}>
-            <div className="mb-6">
-              <label htmlFor="newPassword" className="block mb-2 font-semibold text-dark-purple">Nova Senha</label>
-              <input
-                type="password"
-                id="newPassword"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
-                placeholder="Digite sua nova senha"
-                required
-              />
-            </div>
-            <div className="mb-6">
-              <label htmlFor="confirmPassword" className="block mb-2 font-semibold text-dark-purple">Confirme a Nova Senha</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
-                placeholder="Repita sua nova senha"
-                required
-              />
-            </div>
-            <BigButton text="Redefinir Senha" className="" variant="default" type="submit" />
-          </form>
-        </div>
+        <Suspense fallback={<LoadingForm />}>
+          <ResetPasswordForm />
+        </Suspense>
       </div>
 
       {/* Lado Direito (Banner) */}

@@ -53,49 +53,64 @@ export default function Despesas() {
     autenticarECarregar();
   }, [router]);
 
-  const atualizarDadosGrafico = async () => {
-    try {
-      const response = await dashboardService.buscarPorcentagemDeDespesas();
-  
-      if (!response) {
-        setGraficoData([]);
-        return;
-      }
-  
-      if (Array.isArray(response)) {
-        if (response.length === 0) {
-          setGraficoData([]);
-        } else if (response[0].PorcentagensPorTipo) {
-          setGraficoData(response[0].PorcentagensPorTipo);
-        } else if (response[0].porcentagensPorTipo) {
-          setGraficoData(response[0].porcentagensPorTipo);
-        } else {
-          const temPropriedades = response[0].Tipo !== undefined || response[0].tipo !== undefined;
-          if (temPropriedades) {
-            setGraficoData(response);
-          } else {
-            setGraficoData([]);
-          }
-        }
-      } else {
-        if (response.PorcentagensPorTipo) {
-          setGraficoData(response.PorcentagensPorTipo);
-        } else if (response.porcentagensPorTipo) {
-          setGraficoData(response.porcentagensPorTipo);
-        } else {
-          const temPropriedades = response.Tipo !== undefined || response.tipo !== undefined;
-          if (temPropriedades) {
-            setGraficoData([response]);
-          } else {
-            setGraficoData([]);
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Erro ao atualizar dados do gráfico:", error);
+ const atualizarDadosGrafico = async () => {
+  try {
+    const response = await dashboardService.buscarPorcentagemDeDespesas();
+
+    if (!response) {
       setGraficoData([]);
+      return;
     }
-  };
+
+    // Se response é um array
+    if (Array.isArray(response)) {
+      if (response.length === 0) {
+        setGraficoData([]);
+      } else {
+        // Verifica se o primeiro item tem a propriedade PorcentagensPorTipo
+        const firstItem = response[0];
+        if (firstItem && firstItem.PorcentagensPorTipo && Array.isArray(firstItem.PorcentagensPorTipo)) {
+          setGraficoData(firstItem.PorcentagensPorTipo);
+        } else {
+          // Se não tem PorcentagensPorTipo, assume que o próprio array é o dado
+          // Verifica se os itens têm a estrutura esperada (Tipo, ValorTotal, Porcentagem)
+          const temEstruturaDospesa = response.every(item => 
+            item && typeof item === 'object' && 
+            ('Tipo' in item || 'tipo' in item) && 
+            ('ValorTotal' in item || 'valorTotal' in item || 'valor' in item) && 
+            ('Porcentagem' in item || 'porcentagem' in item)
+          );
+          
+          if (temEstruturaDospesa) {
+            setGraficoData(response as TipoDespesaComPorcentagemDto[]);
+          } else {
+            setGraficoData([]);
+          }
+        }
+      }
+    } else {
+      // Se response é um objeto único
+      if (response.PorcentagensPorTipo && Array.isArray(response.PorcentagensPorTipo)) {
+        setGraficoData(response.PorcentagensPorTipo);
+      } else {
+        // Verifica se o próprio response tem a estrutura esperada
+        const temEstruturaDospesa = response && typeof response === 'object' && 
+          ('Tipo' in response || 'tipo' in response) && 
+          ('ValorTotal' in response || 'valorTotal' in response || 'valor' in response) && 
+          ('Porcentagem' in response || 'porcentagem' in response);
+        
+        if (temEstruturaDospesa) {
+          setGraficoData([response as TipoDespesaComPorcentagemDto]);
+        } else {
+          setGraficoData([]);
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao atualizar dados do gráfico:", error);
+    setGraficoData([]);
+  }
+};
   
   const carregarDados = async () => {
     setIsLoading(true);
@@ -179,7 +194,7 @@ export default function Despesas() {
     // Filtro por pesquisa (nome/descrição)
     const passaFiltroPesquisa = pesquisa === "" || 
       despesa.descricao.toLowerCase().includes(pesquisa.toLowerCase()) ||
-      (despesa.nome && despesa.nome.toLowerCase().includes(pesquisa.toLowerCase()));
+      (despesa.descricao && despesa.descricao.toLowerCase().includes(pesquisa.toLowerCase()));
     
     return passaFiltroPrioridade && passaFiltroTipo && passaFiltroPesquisa;
   });
