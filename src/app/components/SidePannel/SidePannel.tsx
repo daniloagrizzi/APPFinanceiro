@@ -42,7 +42,7 @@ const SidePannel: React.FC<SidePannelProps> = ({
             <div className={style}>
                 {/* Side Pannel */}
                 <div className="mt-5">
-                    <ProfileCase profilePicture={profilePicture} userName={realUserName} />
+                    <ProfileCase profilePicture={profilePicture}  />
                 </div> {/* Profile */}
 
                 <div className="w-[90%] h-[60%] border-t-1 text-white">
