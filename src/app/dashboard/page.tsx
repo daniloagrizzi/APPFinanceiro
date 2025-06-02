@@ -7,7 +7,7 @@ import { authService } from "@/services/authService";
 import SidePannel from "../components/SidePannel/SidePannel";
 import FinancialBalanceCard from '../components/Dashboard/FinancialBalanceCard';
 import MonthlyEvolutionCard from '../components/Dashboard/MonthlyEvolutionCard';
-import FinancialManagerModal from '../components/Dashboard/FinancialManagerModal'; // Importe o novo modal
+import FinancialManagerModal from '../components/Dashboard/FinancialManagerModal'; 
 
 export default function Dashboard() {
   const [isAuth, setIsAuth] = useState(false);
@@ -84,29 +84,33 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 relative">
+      {/* Side Panel */}
       <SidePannel />
 
-      <div className="flex-1 overflow-y-auto">
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto lg:ml-0">
         {/* Header */}
-        <div className="bg-white shadow-sm border-b border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="bg-white shadow-sm border-b border-gray-200 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="pl-16 lg:pl-0"> {/* Add left padding on mobile to avoid menu button */}
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                 Dashboard Financeiro
               </h1>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm sm:text-base">
                 Bem-vindo, {userInfo.UserName}! Aqui está sua visão geral financeira.
               </p>
             </div>
-            <div className="flex items-center space-x-6">
+            
+            <div className="flex items-center justify-end">
               <button
                 onClick={() => setIsManagerModalOpen(true)}
-                className="flex items-center space-x-2 px-6 py-3 text-white rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer
+                className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer
                   bg-gradient-to-r from-[#221DAF] via-[#5A55D5] to-[#6291D8] 
-                  hover:from-[#1e1a9e] hover:via-[#4745b6] hover:to-[#598ef1]"
+                  hover:from-[#1e1a9e] hover:via-[#4745b6] hover:to-[#598ef1]
+                  text-sm sm:text-base"
               >
-                <Settings className="w-5 h-5 cursor-pointer" />
+                <Settings className="w-4 h-4 sm:w-5 sm:h-5 cursor-pointer" />
                 <span className="font-medium">Usar gerenciador</span>
               </button>
             </div>
@@ -114,24 +118,28 @@ export default function Dashboard() {
         </div>
 
         {/* Content */}
-        <div className="p-6">
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
-            {/* Gráfico de Evolução Mensal - 2/3 da largura */}
-            <div className="xl:col-span-2 h-full">
-              <MonthlyEvolutionCard />
+        <div className="p-4 sm:p-6">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
+            {/* Monthly Evolution Chart - Full width on mobile, 2/3 on desktop */}
+            <div className="xl:col-span-2 order-2 xl:order-1">
+              <div className="h-[400px] sm:h-[500px] xl:h-[calc(100vh-200px)]">
+                <MonthlyEvolutionCard />
+              </div>
             </div>
             
-            {/* Card de Balanço Financeiro - 1/3 da largura */}
-            <div className="xl:col-span-1 h-full flex items-start">
-              <div className="w-full">
-                <FinancialBalanceCard />
+            {/* Financial Balance Card - Full width on mobile, 1/3 on desktop */}
+            <div className="xl:col-span-1 order-1 xl:order-2">
+              <div className="h-auto xl:h-[calc(100vh-200px)] flex items-start">
+                <div className="w-full">
+                  <FinancialBalanceCard />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Modal do Gerenciador Inteligente */}
+      {/* Financial Manager Modal */}
       <FinancialManagerModal 
         isOpen={isManagerModalOpen} 
         onClose={() => setIsManagerModalOpen(false)} 
