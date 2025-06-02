@@ -24,6 +24,21 @@ export default function NovaMetaModal({
   const [dataReferencia, setDataReferencia] = useState('');
   const [dataConclusao, setDataConclusao] = useState('');
 
+  // Função para limitar valores a 10 dígitos
+  const handleValorMetaChange = (inputValue: string) => {
+    const numericValue = parseFloat(inputValue) || 0;
+    if (numericValue <= 9999999999.99) {
+      setValorMeta(numericValue);
+    }
+  };
+
+  const handleProgressoChange = (inputValue: string) => {
+    const numericValue = parseFloat(inputValue) || 0;
+    if (numericValue <= 9999999999.99) {
+      setProgresso(numericValue);
+    }
+  };
+
   useEffect(() => {
     if (metaEdicao) {
       setNome(metaEdicao.nome);
@@ -66,10 +81,6 @@ export default function NovaMetaModal({
     if (!metaEdicao) {
       const hoje = new Date();
       const dataRef = new Date(dataReferencia);
-      if (dataRef < hoje) {
-        alert('A data de referência não pode ser anterior a hoje.');
-        return;
-      }
     }
 
     try {
@@ -123,10 +134,14 @@ export default function NovaMetaModal({
             type="number"
             step="0.01"
             min="0"
+            max="9999999999.99"
             className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
             value={valorMeta}
-            onChange={(e) => setValorMeta(parseFloat(e.target.value) || 0)}
+            onChange={(e) => handleValorMetaChange(e.target.value)}
           />
+          <div className="mt-1 text-xs text-gray-500">
+            Valor máximo: R$ 9.999.999.999,99
+          </div>
         </div>
 
         <div className="mb-4">
@@ -135,15 +150,19 @@ export default function NovaMetaModal({
             type="number"
             step="0.01"
             min="0"
+            max="9999999999.99"
             className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
             value={progresso}
-            onChange={(e) => setProgresso(parseFloat(e.target.value) || 0)}
+            onChange={(e) => handleProgressoChange(e.target.value)}
           />
           {valorMeta > 0 && (
             <div className="mt-1 text-xs text-gray-500">
               Progresso: {((progresso / valorMeta) * 100).toFixed(1)}%
             </div>
           )}
+          <div className="mt-1 text-xs text-gray-500">
+            Valor máximo: R$ 9.999.999.999,99
+          </div>
         </div>
 
         <div className="mb-4">
@@ -175,13 +194,13 @@ export default function NovaMetaModal({
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg"
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg cursor-pointer"
           >
             Cancelar
           </button>
           <button
             onClick={handleSubmit}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg cursor-pointer"
           >
             Salvar
           </button>

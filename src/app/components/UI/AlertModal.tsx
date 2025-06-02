@@ -34,7 +34,7 @@ export default function AlertModal({ isOpen, message, onClose }: AlertModalProps
           <p className="text-gray-600 text-base mb-8 text-center leading-relaxed">{message}</p>
           <button
             onClick={onClose}
-            className="px-8 py-3 rounded-full cursor-pointer bg-indigo-600 text-white font-medium text-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            className="cursor-pointer px-8 py-3 rounded-full cursor-pointer bg-indigo-600 text-white font-medium text-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
           >
             Entendido
           </button>

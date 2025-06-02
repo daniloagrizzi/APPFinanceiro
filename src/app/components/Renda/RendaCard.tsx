@@ -81,7 +81,7 @@ const RendaCard = ({ renda, onEdit, onDelete }: RendaCardProps) => {
         <button
           onClick={handleDelete}
           disabled={isLoading}
-          className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+          className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors cursor-pointer"
           aria-label="Excluir"
           title="Excluir"
         >

@@ -28,7 +28,15 @@ export default function NovaDespesaModal({
   const [recorrente, setRecorrente] = useState(false);
   const [frequenciaRecorrencia, setFrequenciaRecorrencia] = useState('');
   const [prioridade, setPrioridade] = useState('Média');
- const [ativo, setAtivo] = useState(true);
+  const [ativo, setAtivo] = useState(true);
+
+  // Função para limitar valor a 10 dígitos
+  const handleValorChange = (inputValue: string) => {
+    const numericValue = parseFloat(inputValue) || 0;
+    if (numericValue <= 9999999999.99) {
+      setValor(numericValue);
+    }
+  };
 
   useEffect(() => {
     if (despesaEdicao) {
@@ -46,7 +54,7 @@ export default function NovaDespesaModal({
       setRecorrente(false);
       setFrequenciaRecorrencia('');
       setPrioridade('Média');
-       setAtivo(true);
+      setAtivo(true);
     }
   }, [despesaEdicao]);
 
@@ -117,10 +125,14 @@ export default function NovaDespesaModal({
             type="number"
             step="0.01"
             min="0"
+            max="9999999999.99"
             className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
             value={valor}
-            onChange={(e) => setValor(parseFloat(e.target.value) || 0)}
+            onChange={(e) => handleValorChange(e.target.value)}
           />
+          <div className="mt-1 text-xs text-gray-500">
+            Valor máximo: R$ 9.999.999.999,99
+          </div>
         </div>
 
         <div className="mb-4">
@@ -165,45 +177,45 @@ export default function NovaDespesaModal({
         </div>
 
         {recorrente && (
-  <div className="mb-4">
-    <label className="block text-sm font-medium text-gray-700">
-      Frequência da Recorrência
-    </label>
-    <select
-      className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
-      value={frequenciaRecorrencia}
-      onChange={(e) => setFrequenciaRecorrencia(e.target.value)}
-    >
-      <option value="" disabled>Selecione uma opção</option>
-      <option value="Semanal">Semanal</option>
-      <option value="Mensal">Mensal</option>
-      <option value="Anual">Anual</option>
-    </select>
-  </div>
-)}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Frequência da Recorrência
+            </label>
+            <select
+              className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
+              value={frequenciaRecorrencia}
+              onChange={(e) => setFrequenciaRecorrencia(e.target.value)}
+            >
+              <option value="" disabled>Selecione uma opção</option>
+              <option value="Semanal">Semanal</option>
+              <option value="Mensal">Mensal</option>
+              <option value="Anual">Anual</option>
+            </select>
+          </div>
+        )}
 
- <div className="mb-4 flex items-center gap-2">
-  <input
-    type="checkbox"
-    id="ativo"
-    checked={ativo} 
-    onChange={(e) => setAtivo(e.target.checked)}
-  />
-  <label htmlFor="ativo" className="text-sm text-gray-700">
-    Despesa ativa?
-  </label>
-</div>
+        <div className="mb-4 flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={ativo} 
+            onChange={(e) => setAtivo(e.target.checked)}
+          />
+          <label htmlFor="ativo" className="text-sm text-gray-700">
+            Despesa ativa?
+          </label>
+        </div>
 
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg"
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg cursor-pointer"
           >
             Cancelar
           </button>
           <button
             onClick={handleSubmit}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg cursor-pointer"
           >
             Salvar
           </button>

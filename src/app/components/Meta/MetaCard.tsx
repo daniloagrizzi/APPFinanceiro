@@ -108,7 +108,7 @@ const MetaCard = ({ meta, onEdit, onDelete }: MetaCardProps) => {
             aria-label="Excluir meta"
             title="Excluir meta"
           >
-            <X className="w-4 h-4 cursor-pointer" />
+            <X className="w-4 h-4 cursor-pointer"/>
           </button>
         </div>
       </div>

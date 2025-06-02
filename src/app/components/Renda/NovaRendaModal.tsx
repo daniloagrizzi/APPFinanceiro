@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { RendaDto } from '@/Interfaces/Renda/RendaDto';
 import { rendaService } from '@/services/rendaService';
@@ -20,6 +22,14 @@ export default function NovaRendaModal({
   const [valor, setValor] = useState<number>(0);
   const [variavel, setVariavel] = useState(false);
 
+  // Função para limitar valor a 10 dígitos
+  const handleValorChange = (inputValue: string) => {
+    const numericValue = parseFloat(inputValue) || 0;
+    // Limita a 10 dígitos (9999999999.99)
+    if (numericValue <= 9999999999.99) {
+      setValor(numericValue);
+    }
+  };
 
   useEffect(() => {
     if (editingRenda) {
@@ -88,35 +98,38 @@ export default function NovaRendaModal({
           <input
             type="number"
             step="0.01"
+            max="9999999999.99"
             className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
             value={valor}
-            onChange={(e) => setValor(parseFloat(e.target.value) || 0)}
+            onChange={(e) => handleValorChange(e.target.value)}
           />
+          <div className="mt-1 text-xs text-gray-500">
+            Valor máximo: R$ 9.999.999.999,99
+          </div>
         </div>
         
         <div className="mb-4">
-  <label className="flex items-center space-x-2">
-    <input
-      type="checkbox"
-      checked={variavel}
-      onChange={(e) => setVariavel(e.target.checked)}
-      className="form-checkbox"
-    />
-    <span>Renda Variável</span>
-  </label>
-</div>
-
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={variavel}
+              onChange={(e) => setVariavel(e.target.checked)}
+              className="form-checkbox"
+            />
+            <span>Renda Variável</span>
+          </label>
+        </div>
 
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg"
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg cursor-pointer"
           >
             Cancelar
           </button>
           <button
             onClick={handleSubmit}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg cursor-pointer"
           >
             Salvar
           </button>

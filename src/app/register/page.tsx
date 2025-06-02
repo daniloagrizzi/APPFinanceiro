@@ -16,9 +16,54 @@ export default function RegisterPage() {
 
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [validationErrors, setValidationErrors] = useState({
+    username: '',
+    password: ''
+  })
+
+  // Função para validar senha
+  const validatePassword = (password: string): string => {
+    const hasUpperCase = /[A-Z]/.test(password)
+    const hasLowerCase = /[a-z]/.test(password)
+    const hasNumbers = /\d/.test(password)
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumbers || !hasSpecialChar) {
+      return 'A senha deve conter ao menos: uma letra maiúscula, uma minúscula, um número e um caractere especial (!@#$%^&*(),.?":{}|<>)'
+    }
+    return ''
+  }
+
+  // Função para validar nome de usuário
+  const validateUsername = (username: string): string => {
+    const hasSpecialChars = /[^a-zA-Z0-9_]/.test(username)
+    const hasSpaces = /\s/.test(username)
+    const hasAccents = /[àáâãäèéêëìíîïòóôõöùúûüçñ]/i.test(username)
+
+    if (hasSpecialChars || hasSpaces || hasAccents) {
+      return 'O nome de usuário não pode conter caracteres especiais, espaços ou acentos. Use apenas letras, números e underscore (_)'
+    }
+    return ''
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
+
+    // Validação em tempo real
+    if (name === 'password') {
+      setValidationErrors(prev => ({
+        ...prev,
+        password: validatePassword(value)
+      }))
+    }
+
+    if (name === 'username') {
+      setValidationErrors(prev => ({
+        ...prev,
+        username: validateUsername(value)
+      }))
+    }
   }
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -26,10 +71,23 @@ export default function RegisterPage() {
     setMessage('')
     setError('')
 
+    // Validar todos os campos antes de enviar
+    const passwordError = validatePassword(formData.password)
+    const usernameError = validateUsername(formData.username)
+
+    if (passwordError || usernameError) {
+      setValidationErrors({
+        password: passwordError,
+        username: usernameError
+      })
+      return
+    }
+
     try {
       const res = await authService.register(formData)
       setMessage(res.message || 'Usuário registrado com sucesso!')
       setFormData({ username: '', email: '', password: '' })
+      setValidationErrors({ username: '', password: '' })
 
       setTimeout(() => router.push('/login'), 1000)
     } catch (err: any) {
@@ -52,10 +110,15 @@ export default function RegisterPage() {
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
+                className={`w-full px-4 py-3 border rounded-lg text-gray-800 ${
+                  validationErrors.username ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Digite seu nome de usuário"
                 required
               />
+              {validationErrors.username && (
+                <p className="text-red-600 text-sm mt-1">{validationErrors.username}</p>
+              )}
             </div>
             <div className="mb-6">
               <label htmlFor="email" className="block mb-2 font-semibold text-[#221DAF]">Email</label>
@@ -78,10 +141,15 @@ export default function RegisterPage() {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
+                className={`w-full px-4 py-3 border rounded-lg text-gray-800 ${
+                  validationErrors.password ? 'border-red-500' : 'border-gray-300'
+                }`}
                 placeholder="Crie uma senha"
                 required
               />
+              {validationErrors.password && (
+                <p className="text-red-600 text-sm mt-1">{validationErrors.password}</p>
+              )}
             </div>
 
             <BigButton text='Cadastrar' className='cursor-pointer'/>
