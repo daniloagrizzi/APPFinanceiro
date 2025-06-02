@@ -1,23 +1,23 @@
 import api from './api';
+
 export interface TipoDespesaComPorcentagemDto {
   Tipo: string;
   ValorTotal: number;
   Porcentagem: number;
 }
+
+// Interface corrigida para rendas - removendo duplicação
 export interface RendasComPorcentagemDto {
-  Variavel: string;
+  Variavel: boolean;
   ValorTotal: number;
   Porcentagem: number;
 }
+
 export interface RendasPorcentagemPorVariavelDto {
   Total: number;
-  PorcentagensVariavel: RendasComPorcentagemDto[];
+  PorcentagensPorVariavel: RendasComPorcentagemDto[];
 }
-export interface RendasComPorcentagemDto {
-  Variavel: string;
-  ValorTotal: number;
-  Porcentagem: number;
-}
+
 export interface DespesasPorcentagemPorTipoDto {
   Total: number;
   PorcentagensPorTipo: TipoDespesaComPorcentagemDto[];
@@ -36,6 +36,7 @@ export interface RelatorioMensalDto {
   totalDespesas: number;
   saldo: number;
 }
+
 export interface PrevisaoMetasDto {
   nome: string;
   valorRestante: number;
@@ -49,13 +50,7 @@ export interface SugerirCortesDto {
   montanteTotal: number;
   sugestaoDeCorteDespesa: SugestaoDeCorteDespesaDto[];
   sugestaoReducaoTipoDeDespesa: SugestaoReducaoTipoDeDespesaDto[];
-  previsaoMetas: PrevisaoMetasDto[]; // <-- ADICIONADO
-}
-
-export interface PrevisaoMetasDto {
-  nome: string;
-  valorRestante: number;
-  mesesParaBaterMeta: number;
+  previsaoMetas: PrevisaoMetasDto[];
 }
 
 export interface SugestaoReducaoTipoDeDespesaDto {
@@ -69,7 +64,6 @@ export interface SugestaoDeCorteDespesaDto {
   valor: number;
   motivo?: string;
 }
-
 
 export const dashboardService = {
   async buscarPorcentagemDeDespesas(): Promise<DespesasPorcentagemPorTipoDto> {
@@ -86,38 +80,6 @@ export const dashboardService = {
       
       console.log('[dashboardService] Resposta bruta da API dashboard:', response);
       console.log('[dashboardService] Dados retornados:', response.data);
-      console.log('[dashboardService] Tipo dos dados:', typeof response.data);
-      
-      if (response.data) {
-        if (Array.isArray(response.data)) {
-          console.log('[dashboardService] Dados retornados como array de tamanho:', response.data.length);
-          if (response.data.length > 0) {
-            console.log('[dashboardService] Primeiro item do array:', response.data[0]);
-            if (response.data[0].PorcentagensPorTipo) {
-              console.log('[dashboardService] PorcentagensPorTipo encontrado no primeiro item do array');
-              console.log('[dashboardService] Conteúdo:', response.data[0].PorcentagensPorTipo);
-            } else if (response.data[0].porcentagensPorTipo) {
-              console.log('[dashboardService] porcentagensPorTipo (camelCase) encontrado no primeiro item do array');
-              console.log('[dashboardService] Conteúdo:', response.data[0].porcentagensPorTipo);
-            } else {
-              console.log('[dashboardService] Nenhum campo de porcentagens encontrado no primeiro item');
-              console.log('[dashboardService] Chaves disponíveis:', Object.keys(response.data[0]));
-            }
-          }
-        } else {
-          console.log('[dashboardService] Dados retornados como objeto');
-          if (response.data.PorcentagensPorTipo) {
-            console.log('[dashboardService] PorcentagensPorTipo encontrado no objeto');
-            console.log('[dashboardService] Conteúdo:', response.data.PorcentagensPorTipo);
-          } else if (response.data.porcentagensPorTipo) {
-            console.log('[dashboardService] porcentagensPorTipo (camelCase) encontrado no objeto');
-            console.log('[dashboardService] Conteúdo:', response.data.porcentagensPorTipo);
-          } else {
-            console.log('[dashboardService] Nenhum campo de porcentagens encontrado no objeto');
-            console.log('[dashboardService] Chaves disponíveis:', Object.keys(response.data));
-          }
-        }
-      }
       
       return response.data;
     } catch (error) {
@@ -125,7 +87,8 @@ export const dashboardService = {
       throw error;
     }
   },
-   async  gerarRelatoriosMensais(): Promise<RelatorioMensalDto> {
+
+  async gerarRelatoriosMensais(): Promise<RelatorioMensalDto> {
     const token = localStorage.getItem('accessToken');
     const response = await api.get('/DashBoard/GerarRelatoriosMensais', {
       headers: {
@@ -135,7 +98,8 @@ export const dashboardService = {
     console.log('Resposta da API dashboard:', response.data);
     return response.data;
   },
-    async  gerenciadorInteligente(): Promise<SugerirCortesDto> {
+
+  async gerenciadorInteligente(): Promise<SugerirCortesDto> {
     const token = localStorage.getItem('accessToken');
     const response = await api.get('/DashBoard/gerenciadorInteligente', {
       headers: {
@@ -148,14 +112,25 @@ export const dashboardService = {
 
   async buscarPorcentagemDeRendas(): Promise<RendasPorcentagemPorVariavelDto> {
     const token = localStorage.getItem('accessToken');
-    const response = await api.get('/DashBoard/GerarPorcentagensPorRendaVariavel', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    console.log('Resposta da API dashboard:', response.data);
-    return response.data;
+    
+    console.log('[dashboardService] Iniciando chamada da API para buscar porcentagens de rendas');
+    
+    try {
+      const response = await api.get('/DashBoard/GerarPorcentagensPorRendaVariavel', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      console.log('[dashboardService] Resposta da API porcentagens de rendas:', response.data);
+      
+      return response.data;
+    } catch (error) {
+      console.error('[dashboardService] Erro ao buscar porcentagens de rendas:', error);
+      throw error;
+    }
   },
+
   async obterBalancoFinanceiro(): Promise<BalancoFinanceiroDto> {
     const token = localStorage.getItem('accessToken');
     

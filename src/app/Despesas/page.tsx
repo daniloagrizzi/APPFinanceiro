@@ -54,48 +54,54 @@ export default function Despesas() {
   }, [router]);
 
   const atualizarDadosGrafico = async () => {
-    try {
-      const response = await dashboardService.buscarPorcentagemDeDespesas();
-  
-      if (!response) {
+  try {
+    const response = await dashboardService.buscarPorcentagemDeDespesas();
+
+    if (!response) {
+      setGraficoData([]);
+      return;
+    }
+
+    // Check if response is an array
+    if (Array.isArray(response)) {
+      if (response.length === 0) {
         setGraficoData([]);
-        return;
-      }
-  
-      if (Array.isArray(response)) {
-        if (response.length === 0) {
-          setGraficoData([]);
-        } else if (response[0].PorcentagensPorTipo) {
-          setGraficoData(response[0].PorcentagensPorTipo);
-        } else if (response[0].porcentagensPorTipo) {
-          setGraficoData(response[0].porcentagensPorTipo);
+      } else {
+        // Get the first item from the array
+        const firstItem = response[0];
+        
+        if (firstItem.PorcentagensPorTipo) {
+          setGraficoData(firstItem.PorcentagensPorTipo);
+        } else if (firstItem.porcentagensPorTipo) {
+          setGraficoData(firstItem.porcentagensPorTipo);
         } else {
-          const temPropriedades = response[0].Tipo !== undefined || response[0].tipo !== undefined;
-          if (temPropriedades) {
+          // If the array items themselves are TipoDespesaComPorcentagemDto objects
+          const hasExpectedProperties = response.every(item => 
+            item.Tipo !== undefined || item.tipo !== undefined
+          );
+          if (hasExpectedProperties) {
             setGraficoData(response);
           } else {
             setGraficoData([]);
           }
         }
-      } else {
-        if (response.PorcentagensPorTipo) {
-          setGraficoData(response.PorcentagensPorTipo);
-        } else if (response.porcentagensPorTipo) {
-          setGraficoData(response.porcentagensPorTipo);
-        } else {
-          const temPropriedades = response.Tipo !== undefined || response.tipo !== undefined;
-          if (temPropriedades) {
-            setGraficoData([response]);
-          } else {
-            setGraficoData([]);
-          }
-        }
       }
-    } catch (error) {
-      console.error("Erro ao atualizar dados do gráfico:", error);
-      setGraficoData([]);
+    } else {
+      // Response is a single DespesasPorcentagemPorTipoDto object
+      if (response.PorcentagensPorTipo) {
+        setGraficoData(response.PorcentagensPorTipo);
+      } else if ((response as any).porcentagensPorTipo) {
+        setGraficoData((response as any).porcentagensPorTipo);
+      } else {
+        // This case is unlikely given the interface, but keeping for safety
+        setGraficoData([]);
+      }
     }
-  };
+  } catch (error) {
+    console.error("Erro ao atualizar dados do gráfico:", error);
+    setGraficoData([]);
+  }
+};
   
   const carregarDados = async () => {
     setIsLoading(true);
@@ -179,7 +185,7 @@ export default function Despesas() {
     // Filtro por pesquisa (nome/descrição)
     const passaFiltroPesquisa = pesquisa === "" || 
       despesa.descricao.toLowerCase().includes(pesquisa.toLowerCase()) ||
-      (despesa.nome && despesa.nome.toLowerCase().includes(pesquisa.toLowerCase()));
+      (despesa.descricao && despesa.descricao.toLowerCase().includes(pesquisa.toLowerCase()));
     
     return passaFiltroPrioridade && passaFiltroTipo && passaFiltroPesquisa;
   });

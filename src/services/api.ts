@@ -1,13 +1,11 @@
-
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://localhost:7202/api', 
+  baseURL: 'https://womoneyapi.onrender.com/api', 
   headers: {
     'Content-Type': 'application/json',
   }
 });
-
 
 api.interceptors.request.use(
   (config) => {
