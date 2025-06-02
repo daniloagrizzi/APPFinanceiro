@@ -36,6 +36,12 @@ export interface RelatorioMensalDto {
   totalDespesas: number;
   saldo: number;
 }
+export interface PrevisaoMetasDto {
+  nome: string;
+  valorRestante: number;
+  mesesParaBaterMeta: number;
+}
+
 export interface SugerirCortesDto {
   montanteCDI: number;
   montanteSELIC: number;
@@ -43,8 +49,9 @@ export interface SugerirCortesDto {
   montanteTotal: number;
   sugestaoDeCorteDespesa: SugestaoDeCorteDespesaDto[];
   sugestaoReducaoTipoDeDespesa: SugestaoReducaoTipoDeDespesaDto[];
-  previsaoMetasDto: PrevisaoMetasDto[];
+  previsaoMetas: PrevisaoMetasDto[]; // <-- ADICIONADO
 }
+
 export interface PrevisaoMetasDto {
   nome: string;
   valorRestante: number;
