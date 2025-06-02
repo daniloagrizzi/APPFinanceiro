@@ -58,7 +58,7 @@ export default function LoginPage() {
                 value={formData.userName}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
-                placeholder="e-mail ou telefone"
+                placeholder="nome de usuário"
                 required
               />
             </div>
