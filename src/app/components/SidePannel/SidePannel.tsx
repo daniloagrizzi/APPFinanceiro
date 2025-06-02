@@ -119,12 +119,12 @@ const SidePannel: React.FC<SidePannelProps> = ({
                         icon="Icons/SidePannel/savings.png" 
                         text="Metas" 
                     />
-                    <ActionButton 
+                   {/* <ActionButton 
                         onClick={() => handleNavigation('/SorteioDeBitcoin')} 
                         className="mb-5 mt-2 text-white cursor-pointer" 
                         icon="Icons/SidePannel/bitcoin.png" 
                         text="Sorteio de Bitcoin" 
-                    />
+                    /> */}
                 </div>
 
                 {/* Logout Button */}
