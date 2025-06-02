@@ -41,7 +41,6 @@ export const metaService = {
     });
     return response.data;
   },
-
   async deletarMeta(id: number): Promise<void> {
     const token = localStorage.getItem('accessToken');
     await api.delete(`/Meta/DeletarMeta/${id}`, {
