@@ -7,6 +7,8 @@ export interface DespesaDto {
     tipoDespesaId: number;
     usuarioId: string;
     prioridade: string;
+    recorrente : boolean;
     ativo : boolean;
+    frequenciaRecorrencia : string;
 
 }
