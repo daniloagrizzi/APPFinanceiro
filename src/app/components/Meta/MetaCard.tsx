@@ -104,7 +104,7 @@ const MetaCard = ({ meta, onEdit, onDelete }: MetaCardProps) => {
           <button
             onClick={handleDelete}
             disabled={isLoading}
-            className="w-8 h-8 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center justify-center cursor-pointer"
+            className="z-10 w-8 h-8 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors disabled:opacity-50 flex items-center justify-center cursor-pointer"
             aria-label="Excluir meta"
             title="Excluir meta"
           >
