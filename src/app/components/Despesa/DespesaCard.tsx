@@ -100,23 +100,23 @@ const DespesaCard = ({ despesa, onEdit, onDelete, tiposDespesa = [] }: DespesaCa
         <button
           onClick={handleEdit}
           disabled={isLoading}
-          className="p-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors"
+          className="p-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors cursor-pointer"
           aria-label="Editar despesa"
           title="Editar despesa"
         >
-          <Edit2 className="w-4 h-4" />
+          <Edit2 className="w-4 h-4 cursor-pointer" />
         </button>
         <button
           onClick={handleDelete}
           disabled={isLoading}
-          className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+          className="p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors cursor-pointer"
           aria-label="Excluir despesa"
           title="Excluir despesa"
         >
           {isLoading ? (
             <div className="w-4 h-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
           ) : (
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4 cursor-pointer" />
           )}
         </button>
       </div>

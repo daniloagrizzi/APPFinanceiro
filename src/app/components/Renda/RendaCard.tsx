@@ -72,7 +72,7 @@ const RendaCard = ({ renda, onEdit, onDelete }: RendaCardProps) => {
         <button
           onClick={handleEdit}
           disabled={isLoading}
-          className="p-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors"
+          className="p-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition-colors cursor-pointer"
           aria-label="Editar"
           title="Editar"
         >
