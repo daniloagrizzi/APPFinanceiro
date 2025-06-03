@@ -20,29 +20,77 @@ export default function NovaRendaModal({
 }: NovaRendaModalProps) {
   const [descricao, setDescricao] = useState('');
   const [valor, setValor] = useState<number>(0);
+  const [valorDisplay, setValorDisplay] = useState('');
   const [variavel, setVariavel] = useState(false);
 
-  // Função para limitar valor a 10 dígitos
-  const handleValorChange = (inputValue: string) => {
-    const numericValue = parseFloat(inputValue) || 0;
-    // Limita a 10 dígitos (9999999999.99)
+  // Função para formatar valor como moeda
+  const formatarMoeda = (valor: number): string => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(valor);
+  };
+
+  // Função simplificada para lidar com mudanças no input de valor
+  const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    
+    // Remove tudo exceto números, vírgula e ponto
+    const cleanValue = inputValue.replace(/[^\d,]/g, '');
+    
+    // Processa vírgulas (máximo 1) e casas decimais (máximo 2)
+    const parts = cleanValue.split(',');
+    let processedValue = parts[0];
+    
+    if (parts.length > 1) {
+      const decimals = parts[1].substring(0, 2);
+      processedValue = processedValue + ',' + decimals;
+    }
+    
+    // Converte para número
+    const numericValue = parseFloat(processedValue.replace(',', '.')) || 0;
+    
+    // Verifica limite
     if (numericValue <= 9999999999.99) {
       setValor(numericValue);
+      setValorDisplay(processedValue);
     }
+  };
+
+  // Função para quando o campo perde o foco - aplica formatação completa
+  const handleValorBlur = () => {
+    if (valor > 0) {
+      setValorDisplay(formatarMoeda(valor));
+    } else {
+      setValorDisplay('');
+    }
+  };
+
+  // Função para quando o campo ganha o foco - formato editável
+  const handleValorFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (valor > 0) {
+      const editableFormat = valor.toFixed(2).replace('.', ',');
+      setValorDisplay(editableFormat);
+    }
+    e.target.select();
   };
 
   useEffect(() => {
     if (editingRenda) {
       setDescricao(editingRenda.descricao);
       setValor(editingRenda.valor);
+      setValorDisplay(formatarMoeda(editingRenda.valor));
       setVariavel(editingRenda.variavel); 
     } else {
       setDescricao('');
       setValor(0);
+      setValorDisplay('');
       setVariavel(false); 
     }
-  }, [editingRenda, isOpen]);
-  
+  }, [editingRenda]);
+
   const handleSubmit = async () => {
     try {
       const userInfo = await authService.getUserInfo();
@@ -95,14 +143,20 @@ export default function NovaRendaModal({
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Valor</label>
-          <input
-            type="number"
-            step="0.01"
-            max="9999999999.99"
-            className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
-            value={valor}
-            onChange={(e) => handleValorChange(e.target.value)}
-          />
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
+              R$
+            </span>
+            <input
+              type="text"
+              className="mt-1 w-full border border-gray-300 rounded-md p-2 pl-10 text-gray-900"
+              value={valorDisplay}
+              onChange={handleValorChange}
+              onBlur={handleValorBlur}
+              onFocus={handleValorFocus}
+              placeholder="0,00"
+            />
+          </div>
           <div className="mt-1 text-xs text-gray-500">
             Valor máximo: R$ 9.999.999.999,99
           </div>

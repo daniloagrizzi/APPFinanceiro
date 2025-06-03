@@ -20,30 +20,89 @@ export default function NovaMetaModal({
 }: NovaMetaModalProps) {
   const [nome, setNome] = useState('');
   const [valorMeta, setValorMeta] = useState<number>(0);
+  const [valorMetaDisplay, setValorMetaDisplay] = useState('');
   const [progresso, setProgresso] = useState<number>(0);
+  const [progressoDisplay, setProgressoDisplay] = useState('');
   const [dataReferencia, setDataReferencia] = useState('');
   const [dataConclusao, setDataConclusao] = useState('');
 
-  // Função para limitar valores a 10 dígitos
-  const handleValorMetaChange = (inputValue: string) => {
-    const numericValue = parseFloat(inputValue) || 0;
-    if (numericValue <= 9999999999.99) {
-      setValorMeta(numericValue);
-    }
+  // Função para formatar valor como moeda
+  const formatarMoeda = (valor: number): string => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(valor);
   };
 
-  const handleProgressoChange = (inputValue: string) => {
-    const numericValue = parseFloat(inputValue) || 0;
-    if (numericValue <= 9999999999.99) {
-      setProgresso(numericValue);
-    }
+  // Função genérica para lidar com mudanças nos inputs de valor
+  const createValueHandler = (setValue: (val: number) => void, setDisplay: (val: string) => void) => {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      const inputValue = e.target.value;
+      
+      // Remove tudo exceto números e vírgula
+      const cleanValue = inputValue.replace(/[^\d,]/g, '');
+      
+      // Processa vírgulas e casas decimais
+      const parts = cleanValue.split(',');
+      let processedValue = parts[0];
+      
+      if (parts.length > 1) {
+        const decimals = parts[1].substring(0, 2);
+        processedValue = processedValue + ',' + decimals;
+      }
+      
+      // Converte para número
+      const numericValue = parseFloat(processedValue.replace(',', '.')) || 0;
+      
+      // Verifica limite
+      if (numericValue <= 9999999999.99) {
+        setValue(numericValue);
+        setDisplay(processedValue);
+      }
+    };
   };
+
+  // Função genérica para blur
+  const createBlurHandler = (value: number, setDisplay: (val: string) => void) => {
+    return () => {
+      if (value > 0) {
+        setDisplay(formatarMoeda(value));
+      } else {
+        setDisplay('');
+      }
+    };
+  };
+
+  // Função genérica para focus
+  const createFocusHandler = (value: number, setDisplay: (val: string) => void) => {
+    return (e: React.FocusEvent<HTMLInputElement>) => {
+      if (value > 0) {
+        const editableFormat = value.toFixed(2).replace('.', ',');
+        setDisplay(editableFormat);
+      }
+      e.target.select();
+    };
+  };
+
+  // Handlers para valor da meta
+  const handleValorMetaChange = createValueHandler(setValorMeta, setValorMetaDisplay);
+  const handleValorMetaBlur = createBlurHandler(valorMeta, setValorMetaDisplay);
+  const handleValorMetaFocus = createFocusHandler(valorMeta, setValorMetaDisplay);
+
+  // Handlers para progresso
+  const handleProgressoChange = createValueHandler(setProgresso, setProgressoDisplay);
+  const handleProgressoBlur = createBlurHandler(progresso, setProgressoDisplay);
+  const handleProgressoFocus = createFocusHandler(progresso, setProgressoDisplay);
 
   useEffect(() => {
     if (metaEdicao) {
       setNome(metaEdicao.nome);
       setValorMeta(metaEdicao.valorMeta);
+      setValorMetaDisplay(formatarMoeda(metaEdicao.valorMeta));
       setProgresso(metaEdicao.progresso);
+      setProgressoDisplay(formatarMoeda(metaEdicao.progresso));
       
       const formatDateForInput = (date: string | Date) => {
         if (typeof date === 'string') {
@@ -57,7 +116,9 @@ export default function NovaMetaModal({
     } else {
       setNome('');
       setValorMeta(0);
+      setValorMetaDisplay('');
       setProgresso(0);
+      setProgressoDisplay('');
       setDataReferencia('');
       setDataConclusao('');
     }
@@ -130,15 +191,20 @@ export default function NovaMetaModal({
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Valor da Meta *</label>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            max="9999999999.99"
-            className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
-            value={valorMeta}
-            onChange={(e) => handleValorMetaChange(e.target.value)}
-          />
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
+              R$
+            </span>
+            <input
+              type="text"
+              className="mt-1 w-full border border-gray-300 rounded-md p-2 pl-10 text-gray-900"
+              value={valorMetaDisplay}
+              onChange={handleValorMetaChange}
+              onBlur={handleValorMetaBlur}
+              onFocus={handleValorMetaFocus}
+              placeholder="0,00"
+            />
+          </div>
           <div className="mt-1 text-xs text-gray-500">
             Valor máximo: R$ 9.999.999.999,99
           </div>
@@ -146,15 +212,20 @@ export default function NovaMetaModal({
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Progresso Atual</label>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            max="9999999999.99"
-            className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
-            value={progresso}
-            onChange={(e) => handleProgressoChange(e.target.value)}
-          />
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">
+              R$
+            </span>
+            <input
+              type="text"
+              className="mt-1 w-full border border-gray-300 rounded-md p-2 pl-10 text-gray-900"
+              value={progressoDisplay}
+              onChange={handleProgressoChange}
+              onBlur={handleProgressoBlur}
+              onFocus={handleProgressoFocus}
+              placeholder="0,00"
+            />
+          </div>
           {valorMeta > 0 && (
             <div className="mt-1 text-xs text-gray-500">
               Progresso: {((progresso / valorMeta) * 100).toFixed(1)}%
