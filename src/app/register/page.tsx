@@ -16,6 +16,7 @@ export default function RegisterPage() {
 
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const [validationErrors, setValidationErrors] = useState({
     username: '',
     password: ''
@@ -83,6 +84,8 @@ export default function RegisterPage() {
       return
     }
 
+    setIsLoading(true)
+
     try {
       const res = await authService.register(formData)
       setMessage(res.message || 'Usuário registrado com sucesso!')
@@ -92,6 +95,8 @@ export default function RegisterPage() {
       setTimeout(() => router.push('/login'), 1000)
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Erro ao registrar.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -115,6 +120,7 @@ export default function RegisterPage() {
                 }`}
                 placeholder="Digite seu nome de usuário"
                 required
+                disabled={isLoading}
               />
               {validationErrors.username && (
                 <p className="text-red-600 text-sm mt-1">{validationErrors.username}</p>
@@ -131,6 +137,7 @@ export default function RegisterPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
                 placeholder="Digite seu e-mail"
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="mb-6">
@@ -146,14 +153,26 @@ export default function RegisterPage() {
                 }`}
                 placeholder="Crie uma senha"
                 required
+                disabled={isLoading}
               />
               {validationErrors.password && (
                 <p className="text-red-600 text-sm mt-1">{validationErrors.password}</p>
               )}
             </div>
 
-            <BigButton text='Cadastrar' className='cursor-pointer'/>
-            <BigButton text='Já possui conta? Entre aqui' className='cursor-pointer' variant='secundary' onClick={() => router.push('/login')} />
+            <BigButton 
+              text={isLoading ? 'Cadastrando...' : 'Cadastrar'} 
+              className='cursor-pointer'
+              type='submit'
+              disabled={isLoading}
+            />
+            <BigButton 
+              text='Já possui conta? Entre aqui' 
+              className='cursor-pointer' 
+              variant='secundary' 
+              onClick={() => router.push('/login')}
+              disabled={isLoading}
+            />
 
             {message && <p className="text-green-600 mt-4">{message}</p>}
             {error && <p className="text-red-600 mt-4">{error}</p>}

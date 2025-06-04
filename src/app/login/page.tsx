@@ -12,6 +12,7 @@ export default function LoginPage() {
   });
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,6 +21,8 @@ export default function LoginPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    
     try {
       const res = await authService.login(formData);
 
@@ -36,6 +39,8 @@ export default function LoginPage() {
     } catch (err: any) {
       setError('Usuário ou senha inválidos');
       setMessage('');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -60,6 +65,7 @@ export default function LoginPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
                 placeholder="nome de usuário"
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -74,12 +80,25 @@ export default function LoginPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-800"
                 placeholder="Digite sua senha"
                 required
+                disabled={isLoading}
               />
               <a href ='#' onClick={() => router.push('/forgotPassword')} className="block text-small font-semibold text-dark-purple mt-2">Esqueceu a senha?</a>
             </div>
 
-            <BigButton text='Entrar' className='cursor-pointer' variant='default' type='submit' />
-            <BigButton text='Cadastre-se' className='cursor-pointer' variant='secundary' onClick={() => router.push('/register')} />
+            <BigButton 
+              text={isLoading ? 'Entrando...' : 'Entrar'} 
+              className='cursor-pointer' 
+              variant='default' 
+              type='submit'
+              disabled={isLoading}
+            />
+            <BigButton 
+              text='Cadastre-se' 
+              className='cursor-pointer' 
+              variant='secundary' 
+              onClick={() => router.push('/register')}
+              disabled={isLoading}
+            />
           </form>
         </div>
       </div>

@@ -25,8 +25,8 @@ export default function NovaMetaModal({
   const [progressoDisplay, setProgressoDisplay] = useState('');
   const [dataReferencia, setDataReferencia] = useState('');
   const [dataConclusao, setDataConclusao] = useState('');
-
-  // Função para formatar valor como moeda
+  const [isLoading, setIsLoading] = useState(false);
+  
   const formatarMoeda = (valor: number): string => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -36,15 +36,12 @@ export default function NovaMetaModal({
     }).format(valor);
   };
 
-  // Função genérica para lidar com mudanças nos inputs de valor
   const createValueHandler = (setValue: (val: number) => void, setDisplay: (val: string) => void) => {
     return (e: React.ChangeEvent<HTMLInputElement>) => {
       const inputValue = e.target.value;
       
-      // Remove tudo exceto números e vírgula
       const cleanValue = inputValue.replace(/[^\d,]/g, '');
       
-      // Processa vírgulas e casas decimais
       const parts = cleanValue.split(',');
       let processedValue = parts[0];
       
@@ -53,10 +50,8 @@ export default function NovaMetaModal({
         processedValue = processedValue + ',' + decimals;
       }
       
-      // Converte para número
       const numericValue = parseFloat(processedValue.replace(',', '.')) || 0;
       
-      // Verifica limite
       if (numericValue <= 9999999999.99) {
         setValue(numericValue);
         setDisplay(processedValue);
@@ -64,7 +59,6 @@ export default function NovaMetaModal({
     };
   };
 
-  // Função genérica para blur
   const createBlurHandler = (value: number, setDisplay: (val: string) => void) => {
     return () => {
       if (value > 0) {
@@ -75,7 +69,6 @@ export default function NovaMetaModal({
     };
   };
 
-  // Função genérica para focus
   const createFocusHandler = (value: number, setDisplay: (val: string) => void) => {
     return (e: React.FocusEvent<HTMLInputElement>) => {
       if (value > 0) {
@@ -86,12 +79,10 @@ export default function NovaMetaModal({
     };
   };
 
-  // Handlers para valor da meta
   const handleValorMetaChange = createValueHandler(setValorMeta, setValorMetaDisplay);
   const handleValorMetaBlur = createBlurHandler(valorMeta, setValorMetaDisplay);
   const handleValorMetaFocus = createFocusHandler(valorMeta, setValorMetaDisplay);
 
-  // Handlers para progresso
   const handleProgressoChange = createValueHandler(setProgresso, setProgressoDisplay);
   const handleProgressoBlur = createBlurHandler(progresso, setProgressoDisplay);
   const handleProgressoFocus = createFocusHandler(progresso, setProgressoDisplay);
@@ -144,6 +135,8 @@ export default function NovaMetaModal({
       const dataRef = new Date(dataReferencia);
     }
 
+    setIsLoading(true);
+
     try {
       const userInfo = await authService.getUserInfo();
 
@@ -166,6 +159,8 @@ export default function NovaMetaModal({
     } catch (error) {
       console.error("Erro ao salvar meta:", error);
       alert('Erro ao salvar meta.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -186,6 +181,7 @@ export default function NovaMetaModal({
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             placeholder="Ex: Reserva de emergência, Viagem, Carro novo..."
+            disabled={isLoading}
           />
         </div>
 
@@ -203,6 +199,7 @@ export default function NovaMetaModal({
               onBlur={handleValorMetaBlur}
               onFocus={handleValorMetaFocus}
               placeholder="0,00"
+              disabled={isLoading}
             />
           </div>
           <div className="mt-1 text-xs text-gray-500">
@@ -224,6 +221,7 @@ export default function NovaMetaModal({
               onBlur={handleProgressoBlur}
               onFocus={handleProgressoFocus}
               placeholder="0,00"
+              disabled={isLoading}
             />
           </div>
           {valorMeta > 0 && (
@@ -243,6 +241,7 @@ export default function NovaMetaModal({
             className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
             value={dataReferencia}
             onChange={(e) => setDataReferencia(e.target.value)}
+            disabled={isLoading}
           />
           <div className="mt-1 text-xs text-gray-500">
             Data limite para atingir a meta
@@ -256,6 +255,7 @@ export default function NovaMetaModal({
             className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
             value={dataConclusao}
             onChange={(e) => setDataConclusao(e.target.value)}
+            disabled={isLoading}
           />
           <div className="mt-1 text-xs text-gray-500">
             Quando você planeja concluir a meta (opcional)
@@ -265,15 +265,25 @@ export default function NovaMetaModal({
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg cursor-pointer"
+            className={`px-4 py-2 rounded-lg cursor-pointer ${
+              isLoading 
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+            }`}
+            disabled={isLoading}
           >
             Cancelar
           </button>
           <button
             onClick={handleSubmit}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg cursor-pointer"
+            className={`px-4 py-2 rounded-lg cursor-pointer ${
+              isLoading 
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+            }`}
+            disabled={isLoading}
           >
-            Salvar
+            {isLoading ? 'Salvando...' : 'Salvar'}
           </button>
         </div>
       </div>

@@ -22,6 +22,7 @@ export default function NovaRendaModal({
   const [valor, setValor] = useState<number>(0);
   const [valorDisplay, setValorDisplay] = useState('');
   const [variavel, setVariavel] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Função para formatar valor como moeda
   const formatarMoeda = (valor: number): string => {
@@ -33,14 +34,11 @@ export default function NovaRendaModal({
     }).format(valor);
   };
 
-  // Função simplificada para lidar com mudanças no input de valor
   const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     
-    // Remove tudo exceto números, vírgula e ponto
     const cleanValue = inputValue.replace(/[^\d,]/g, '');
     
-    // Processa vírgulas (máximo 1) e casas decimais (máximo 2)
     const parts = cleanValue.split(',');
     let processedValue = parts[0];
     
@@ -49,17 +47,14 @@ export default function NovaRendaModal({
       processedValue = processedValue + ',' + decimals;
     }
     
-    // Converte para número
     const numericValue = parseFloat(processedValue.replace(',', '.')) || 0;
     
-    // Verifica limite
     if (numericValue <= 9999999999.99) {
       setValor(numericValue);
       setValorDisplay(processedValue);
     }
   };
 
-  // Função para quando o campo perde o foco - aplica formatação completa
   const handleValorBlur = () => {
     if (valor > 0) {
       setValorDisplay(formatarMoeda(valor));
@@ -68,7 +63,6 @@ export default function NovaRendaModal({
     }
   };
 
-  // Função para quando o campo ganha o foco - formato editável
   const handleValorFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     if (valor > 0) {
       const editableFormat = valor.toFixed(2).replace('.', ',');
@@ -92,6 +86,13 @@ export default function NovaRendaModal({
   }, [editingRenda]);
 
   const handleSubmit = async () => {
+    if (!descricao.trim() || valor <= 0) {
+      alert('Por favor, preencha todos os campos obrigatórios corretamente.');
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
       const userInfo = await authService.getUserInfo();
       const hoje = new Date();
@@ -119,6 +120,8 @@ export default function NovaRendaModal({
     } catch (error) {
       console.error("Erro ao salvar renda:", error);
       alert('Erro ao salvar renda.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -138,6 +141,7 @@ export default function NovaRendaModal({
             className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
+            disabled={isLoading}
           />
         </div>
 
@@ -155,6 +159,7 @@ export default function NovaRendaModal({
               onBlur={handleValorBlur}
               onFocus={handleValorFocus}
               placeholder="0,00"
+              disabled={isLoading}
             />
           </div>
           <div className="mt-1 text-xs text-gray-500">
@@ -169,6 +174,7 @@ export default function NovaRendaModal({
               checked={variavel}
               onChange={(e) => setVariavel(e.target.checked)}
               className="form-checkbox"
+              disabled={isLoading}
             />
             <span>Renda Variável</span>
           </label>
@@ -177,15 +183,25 @@ export default function NovaRendaModal({
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg cursor-pointer"
+            className={`px-4 py-2 rounded-lg cursor-pointer ${
+              isLoading 
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+            }`}
+            disabled={isLoading}
           >
             Cancelar
           </button>
           <button
             onClick={handleSubmit}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg cursor-pointer"
+            className={`px-4 py-2 rounded-lg cursor-pointer ${
+              isLoading 
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+            }`}
+            disabled={isLoading}
           >
-            Salvar
+            {isLoading ? 'Salvando...' : 'Salvar'}
           </button>
         </div>
       </div>

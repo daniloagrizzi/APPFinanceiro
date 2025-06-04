@@ -1,15 +1,30 @@
-
 "use client";
+
+import { useState } from 'react';
 
 interface ConfirmModalProps {
   isOpen: boolean;
   message: string;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void> | void;
   onCancel: () => void;
 }
 
 export default function ConfirmModal({ isOpen, message, onConfirm, onCancel }: ConfirmModalProps) {
+  const [isLoading, setIsLoading] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleConfirm = async () => {
+    setIsLoading(true);
+    
+    try {
+      await onConfirm();
+    } catch (error) {
+      console.error('Erro na confirmação:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50">
@@ -18,15 +33,25 @@ export default function ConfirmModal({ isOpen, message, onConfirm, onCancel }: C
         <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer"
+            className={`px-4 py-2 rounded-lg cursor-pointer ${
+              isLoading 
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            }`}
+            disabled={isLoading}
           >
             Cancelar
           </button>
           <button
-            onClick={onConfirm}
-            className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 cursor-pointer"
+            onClick={handleConfirm}
+            className={`px-4 py-2 rounded-lg cursor-pointer ${
+              isLoading 
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                : 'bg-red-600 text-white hover:bg-red-700'
+            }`}
+            disabled={isLoading}
           >
-            Confirmar
+            {isLoading ? 'Processando...' : 'Confirmar'}
           </button>
         </div>
       </div>

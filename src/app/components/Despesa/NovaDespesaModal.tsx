@@ -30,6 +30,7 @@ export default function NovaDespesaModal({
   const [frequenciaRecorrencia, setFrequenciaRecorrencia] = useState('');
   const [prioridade, setPrioridade] = useState('Média');
   const [ativo, setAtivo] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Função para formatar valor como moeda
   const formatarMoeda = (valor: number): string => {
@@ -118,6 +119,8 @@ export default function NovaDespesaModal({
         alert('Por favor, preencha todos os campos obrigatórios corretamente.');
         return;
       }
+
+    setIsLoading(true);
       
     try {
       const userInfo = await authService.getUserInfo();
@@ -146,6 +149,8 @@ export default function NovaDespesaModal({
     } catch (error) {
       console.error("Erro ao salvar despesa:", error);
       alert('Erro ao salvar despesa.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -165,6 +170,7 @@ export default function NovaDespesaModal({
             className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
+            disabled={isLoading}
           />
         </div>
 
@@ -182,6 +188,7 @@ export default function NovaDespesaModal({
               onBlur={handleValorBlur}
               onFocus={handleValorFocus}
               placeholder="0,00"
+              disabled={isLoading}
             />
           </div>
           <div className="mt-1 text-xs text-gray-500">
@@ -195,6 +202,7 @@ export default function NovaDespesaModal({
             className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
             value={tipoDespesaId}
             onChange={(e) => setTipoDespesaId(Number(e.target.value))}
+            disabled={isLoading}
           >
             <option value={0} disabled>Selecione um tipo</option>
             {tiposDespesa.map((tipo) => (
@@ -211,6 +219,7 @@ export default function NovaDespesaModal({
             className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
             value={prioridade}
             onChange={(e) => setPrioridade(e.target.value)}
+            disabled={isLoading}
           >
             <option value="Alta">Alta</option>
             <option value="Média">Média</option>
@@ -224,6 +233,7 @@ export default function NovaDespesaModal({
             id="recorrente"
             checked={recorrente}
             onChange={(e) => setRecorrente(e.target.checked)}
+            disabled={isLoading}
           />
           <label htmlFor="recorrente" className="text-sm text-gray-700">
             Despesa recorrente
@@ -239,6 +249,7 @@ export default function NovaDespesaModal({
               className="mt-1 w-full border border-gray-300 rounded-md p-2 text-gray-900"
               value={frequenciaRecorrencia}
               onChange={(e) => setFrequenciaRecorrencia(e.target.value)}
+              disabled={isLoading}
             >
               <option value="" disabled>Selecione uma opção</option>
               <option value="Semanal">Semanal</option>
@@ -254,6 +265,7 @@ export default function NovaDespesaModal({
             id="ativo"
             checked={ativo} 
             onChange={(e) => setAtivo(e.target.checked)}
+            disabled={isLoading}
           />
           <label htmlFor="ativo" className="text-sm text-gray-700">
             Despesa ativa?
@@ -263,15 +275,25 @@ export default function NovaDespesaModal({
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg cursor-pointer"
+            className={`px-4 py-2 rounded-lg cursor-pointer ${
+              isLoading 
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+            }`}
+            disabled={isLoading}
           >
             Cancelar
           </button>
           <button
             onClick={handleSubmit}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg cursor-pointer"
+            className={`px-4 py-2 rounded-lg cursor-pointer ${
+              isLoading 
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed' 
+                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+            }`}
+            disabled={isLoading}
           >
-            Salvar
+            {isLoading ? 'Salvando...' : 'Salvar'}
           </button>
         </div>
       </div>

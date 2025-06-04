@@ -120,14 +120,12 @@ export default function Dashboard() {
         {/* Content */}
         <div className="p-4 sm:p-6">
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
-            {/* Monthly Evolution Chart - Full width on mobile, 2/3 on desktop */}
             <div className="xl:col-span-2 order-2 xl:order-1">
               <div className="h-[400px] sm:h-[500px] xl:h-[calc(100vh-200px)]">
                 <MonthlyEvolutionCard />
               </div>
             </div>
             
-            {/* Financial Balance Card - Full width on mobile, 1/3 on desktop */}
             <div className="xl:col-span-1 order-1 xl:order-2">
               <div className="h-auto xl:h-[calc(100vh-200px)] flex items-start">
                 <div className="w-full">
@@ -139,7 +137,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Financial Manager Modal */}
       <FinancialManagerModal 
         isOpen={isManagerModalOpen} 
         onClose={() => setIsManagerModalOpen(false)} 
